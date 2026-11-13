@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy: Promo code</title>
+<style>
+:root{--bg:#f7f7fb;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--card:#fff;--accent:#6c4cff;--at:#fff;--ok:#1a9d5c;--warn:#d9822b;--bad:#c62f3b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101015;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--card:#1a1a23;--accent:#8b72ff;--at:#0e0e14;--ok:#4cd08a;--warn:#f0a35a;--bad:#ff7b86;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+main{max-width:520px;margin:0 auto;padding:24px 16px}
+a{color:var(--accent)}h1{margin:8px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.muted{color:var(--muted);font-size:.92rem}
+label{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
+input,select,button{font:inherit}
+input[type=text],select{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:4px}
+input[type=file]{margin-top:6px;max-width:100%}
+button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--at);margin-top:14px;width:100%}
+button:disabled{opacity:.5}
+.box{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:12px;margin-top:10px}
+.big{font-size:1.4rem;font-weight:800}
+#msg{min-height:1.4em;margin:6px 0;color:var(--warn)}
+.pay{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem}
+.s-pending{color:var(--warn)}.s-approved{color:var(--ok)}.s-rejected{color:var(--bad)}
+</style>
+</head>
+<body>
+<div style="background:#ffe9a8;color:#5a4300;text-align:center;padding:8px;font-size:.9rem">Preview mode: type your promo code. Nothing is sent or saved.</div>
+<main>
+<p><a href="https://claude.ai/artifact/18W9VYJxCCgRCt8wGAHzNJ">← Pricing</a></p>
+<h1 id="ttl">Promo code</h1>
+<p class="muted" id="intro">Type your promo code to continue.</p>
+<div id="msg" role="status"></div>
+
+<div class="card" id="login" hidden>
+  <p>Please log in or sign up first.</p><a href="/register">Sign up / Log in</a>
+</div>
+
+<div class="card" id="promo" hidden>
+  <strong>Promo code</strong>
+  <label for="code">Type your promo code</label>
+  <input type="text" id="code" autocomplete="off" autocapitalize="none">
+  <button id="codeGo">Continue</button>
+</div>
+
+<div id="pay" hidden>
+  <div class="card">
+    <strong>What are you paying for?</strong>
+    <label for="what">Choose</label>
+    <select id="what"></select>
+    <div class="box">
+      <div class="muted">Amount to send</div><div class="big" id="amt"></div>
+      <div class="muted" style="margin-top:8px">Send to this Telebirr number</div>
+      <div class="big" id="num"></div><div class="muted" id="nm"></div>
+    </div>
+  </div>
+  <div class="card">
+    <strong>Send proof of payment</strong>
+    <label for="ref">Telebirr transaction number</label>
+    <input type="text" id="ref" autocomplete="off" placeholder="e.g. CJ12AB34CD">
+    <label for="shot">Payment screenshot (PNG, JPG or WebP, up to 5 MB)</label>
+    <input type="file" id="shot" accept="image/png,image/jpeg,image/webp">
+    <button id="send">Submit for review</button>
+    <p class="muted">Reviews are done by hand, so it can take some time. Your plan or clip is activated once we approve it.</p>
+  </div>
+  <div class="card"><strong>My payments</strong><div id="mine" class="muted">None yet.</div></div>
+</div>
+</main>
+<script>
+(function(){
+ var ok=false,pays=[],real=window.fetch;
+ function resp(c,o){return Promise.resolve(new Response(JSON.stringify(o),{status:c,headers:{"Content-Type":"application/json"}}))}
+ var PR={weekly:399,monthly:500,annual:3000,unlock:250};
+ var HASH="86ffd3e002b8c075b4f9c1e78a73fac3afbf01720bd3f6530d1ea187193e470d";
+ async function sha(t){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return Array.from(new Uint8Array(b)).map(function(x){return ("0"+x.toString(16)).slice(-2)}).join("")}
+ window.fetch=function(p,o){
+  if(typeof p!=="string"||p.indexOf("/api/")!==0)return real.apply(this,arguments);
+  if(p==="/api/me")return resp(200,{email:"demo@example.com"});
+  if(p==="/api/telebirr/promo"){var b=JSON.parse(o.body);return sha(String(b.code).trim().toLowerCase()).then(function(h){if(h===HASH){ok=true;return resp(200,{ok:true})}return resp(403,{error:"That promo code is not valid."})})}
+  if(p==="/api/telebirr/info")return ok?resp(200,{number:"0907737307",name:"Biruk Sintayehu",prices:PR}):resp(403,{error:"Enter the promo code first."});
+  if(p==="/api/clips")return resp(200,{clips:[{id:7,title:"Podcast intro clip",status:"locked"}]});
+  if(p==="/api/telebirr/mine")return resp(200,{payments:pays});
+  if(p==="/api/telebirr/submit"){
+   var f=o.body,kind=f.get("kind"),ref=String(f.get("reference")||"").trim();
+   if(!/^[A-Za-z0-9]{4,40}$/.test(ref))return resp(400,{error:"Enter the Telebirr transaction number (letters and numbers only)."});
+   pays.unshift({kind:kind,plan:f.get("plan"),amount_etb:kind==="plan"?PR[f.get("plan")]:PR.unlock,reference:ref,status:"pending"});
+   return resp(201,{});
+  }
+  return resp(404,{error:"Not found"});
+ };
+})();
+</script>
+<script>
+var $=function(id){return document.getElementById(id)};
+var INFO=null,LOCKED=[];
+function msg(t){$("msg").textContent=t||""}
+async function api(path,opt){
+  var r=await fetch(path,opt);var j=await r.json().catch(function(){return{}});
+  if(!r.ok){var e=new Error(j.error||"Something went wrong ("+r.status+")");e.status=r.status;throw e}
+  return j;
+}
+function fmt(n){return (+n).toLocaleString(undefined,{maximumFractionDigits:2})+" ETB"}
+function opt(v,t){var o=document.createElement("option");o.value=v;o.textContent=t;return o}
+function updateAmt(){
+  var v=$("what").value,p=INFO.prices;
+  $("amt").textContent=fmt(v==="plan:weekly"?p.weekly:v==="plan:monthly"?p.monthly:v==="plan:annual"?p.annual:p.unlock);
+}
+async function showPay(){
+  INFO=await api("/api/telebirr/info");
+  $("ttl").textContent="Payment";$("intro").textContent="Send the payment on Telebirr, then upload your screenshot. We check it and activate your plan or clip.";
+  var sel=$("what");sel.innerHTML="";
+  if(INFO.prices.weekly)sel.appendChild(opt("plan:weekly","Weekly plan (7 days)"));
+  if(INFO.prices.monthly)sel.appendChild(opt("plan:monthly","Monthly plan (30 days)"));
+  if(INFO.prices.annual)sel.appendChild(opt("plan:annual","Annual plan (365 days)"));
+  if(INFO.prices.unlock){
+    try{var c=await api("/api/clips");LOCKED=c.clips.filter(function(x){return x.status==="locked"})}catch(e){LOCKED=[]}
+    LOCKED.forEach(function(x){sel.appendChild(opt("clip:"+x.id,"Unlock clip: "+x.title))});
+  }
+  var want=new URLSearchParams(location.search).get("clip");
+  if(want&&sel.querySelector('option[value="clip:'+want+'"]'))sel.value="clip:"+want;
+  $("num").textContent=INFO.number;$("nm").textContent=INFO.name?"Account name: "+INFO.name:"";
+  updateAmt();$("promo").hidden=true;$("pay").hidden=false;loadMine();
+}
+async function loadMine(){
+  try{
+    var j=await api("/api/telebirr/mine"),box=$("mine");
+    if(!j.payments.length){box.textContent="None yet.";return}
+    box.innerHTML="";
+    j.payments.forEach(function(p){
+      var d=document.createElement("div");d.className="pay";
+      var l=document.createElement("span"),r=document.createElement("b");
+      l.textContent=(p.kind==="plan"?p.plan+" plan":"Clip unlock")+" · "+fmt(p.amount_etb)+" · "+p.reference;
+      r.className="s-"+p.status;r.textContent=p.status==="pending"?"Waiting for review":p.status==="approved"?"Approved":"Rejected"+(p.note?": "+p.note:"");
+      d.append(l,r);box.appendChild(d);
+    });
+  }catch(e){}
+}
+$("what").onchange=updateAmt;
+$("codeGo").onclick=async function(){
+  msg("");$("codeGo").disabled=true;
+  try{await api("/api/telebirr/promo",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:$("code").value})});await showPay()}
+  catch(e){msg(e.message)}
+  $("codeGo").disabled=false;
+};
+$("code").addEventListener("keydown",function(e){if(e.key==="Enter")$("codeGo").click()});
+$("send").onclick=async function(){
+  msg("");
+  var f=$("shot").files[0];
+  if(!f){msg("Attach your payment screenshot.");return}
+  var fd=new FormData(),v=$("what").value.split(":");
+  fd.append("kind",v[0]);if(v[0]==="plan")fd.append("plan",v[1]);else fd.append("clip_id",v[1]);
+  fd.append("reference",$("ref").value);fd.append("screenshot",f);
+  $("send").disabled=true;
+  try{await api("/api/telebirr/submit",{method:"POST",body:fd});msg("Submitted. We will review it soon.");$("ref").value="";$("shot").value="";loadMine()}
+  catch(e){msg(e.message)}
+  $("send").disabled=false;
+};
+(async function(){
+  try{await api("/api/me")}catch(e){$("login").hidden=false;return}
+  try{await showPay()}
+  catch(e){if(e.status===503){msg(e.message)}else{$("promo").hidden=false}}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy Clipper</title>
+<style>
+:root{--bg:#f7f7fb;--card:#fff;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--accent:#6c4cff;--at:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:24px 16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:1.4rem;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+select,input[type=number]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}
+button{border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at)}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:default}
+video{width:100%;max-height:50vh;border-radius:10px;background:#000}
+progress{width:100%;height:10px;margin-top:10px}
+#drop.over{border-color:var(--accent)}
+.muted{color:var(--muted);font-size:.9rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.clip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}
+.clip input{width:80px}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+input[type=text],input[type=url]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}
+.ai{width:100%;font-size:.9rem;white-space:pre-wrap;color:var(--muted)}
+#drop{border:2px dashed var(--line);border-radius:12px;padding:32px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>🎬 Clipzzy Clipper</h1>
+  <label class="muted">Plan
+    <select id="plan">
+      <option value="free">Free</option>
+      <option value="monthly">Monthly</option>
+      <option value="annual">Annual</option>
+    </select>
+  </label>
+</header>
+<p class="muted" id="planInfo"></p>
+
+<div class="card" id="drop">
+  <p>Choose or drop a video here to start. It stays on your device.</p>
+  <input type="file" id="file" accept="video/*">
+</div>
+
+<div class="card" id="linkCard">
+  <strong>Clip from a link</strong>
+  <p class="muted">Paste a YouTube or Twitch video link, then set start and end times.</p>
+  <div class="row"><input type="url" id="lurl" placeholder="https://youtube.com/watch?v=..." style="flex:1;min-width:220px"></div>
+  <div class="row">Start <input type="text" id="ls" placeholder="0:30" size="6"> End <input type="text" id="le" placeholder="1:00" size="6">
+    <button class="alt" id="mkLink">Make timestamp link</button>
+    <button id="cutSrv">Cut with my server</button></div>
+  <label class="muted"><input type="checkbox" id="own"> I own this content or have permission to clip it</label>
+  <div class="muted" id="lout" style="margin-top:8px;word-break:break-all"></div>
+</div>
+
+<div class="card" id="editor" hidden>
+  <video id="v" controls playsinline></video>
+  <div class="row">
+    <button id="auto">Make 7 viral clips</button>
+    <button class="alt" id="expAll">Export all</button>
+    <button class="alt" id="add">Add clip at current time</button>
+    <span class="muted" id="status"></span>
+    <progress id="prog" max="100" value="0" hidden></progress>
+  </div>
+</div>
+
+<div class="card" id="clipsCard" hidden>
+  <strong>Clips</strong>
+  <div id="clips"></div>
+</div>
+
+<div class="card" id="resCard" hidden>
+  <strong>Exported clips</strong>
+  <p class="muted">Use Save clip to download. Press and hold also works as a fallback.</p>
+  <div class="res" id="res"></div>
+</div>
+</main>
+<canvas id="cv" hidden></canvas>
+<script>
+var PLANS={
+  free:{name:"Free",max:7,maxLen:30,wm:true,res:720,info:"Free for 30 days: 7 exports per day, 30 s max per clip, 720p, ananya.clip watermark."},
+  monthly:{name:"Monthly",max:100,maxLen:180,wm:false,res:1080,info:"Monthly: 100 exports, 3 min per clip, 1080p, no watermark."},
+  annual:{name:"Annual",max:Infinity,maxLen:600,wm:false,res:1080,info:"Annual: unlimited exports, 10 min per clip, 1080p, no watermark."}
+};
+var $=function(id){return document.getElementById(id)};
+var v=$("v"),clips=[],exported=0,busy=false;
+var day=new Date().toDateString();
+try{var sv0=JSON.parse(localStorage.getItem("clipai_used")||"{}");if(sv0.d===day)exported=sv0.n||0}catch(e){}
+function checkDay(){var t=new Date().toDateString();if(t!==day){day=t;if($("plan").value==="free")exported=0}}
+var trialStart=Date.now();
+try{var t0=+localStorage.getItem("clipai_trial");if(t0)trialStart=t0;else localStorage.setItem("clipai_trial",String(trialStart))}catch(e){}
+function trialLeft(){return Math.ceil(30-(Date.now()-trialStart)/86400000)}
+
+function plan(){return PLANS[$("plan").value]}
+function showPlan(){checkDay();$("planInfo").textContent=plan().info+" Exported "+($("plan").value==="free"?"today":"so far")+": "+exported+"."+($("plan").value==="free"?(trialLeft()>0?" Free period: "+trialLeft()+" days left.":" Your 30-day free period has ended. Choose Monthly or Annual."):"");
+  try{localStorage.setItem("clipai_used",JSON.stringify({d:day,n:exported}))}catch(e){}}
+$("plan").onchange=showPlan;showPlan();
+
+function fmt(t){var m=Math.floor(t/60),s=(t%60).toFixed(1);return m+":"+(s<10?"0":"")+s}
+function status(t){$("status").textContent=t}
+
+async function uploadClip(blob,name){
+  try{
+    var m=await fetch("/api/me");if(!m.ok)return;
+    var fd=new FormData();fd.append("file",blob,name);fd.append("title",name);
+    var r=await fetch("/api/clips/upload",{method:"POST",body:fd});
+    if(r.ok)status("Clip exported and saved to My clips for 4 days.");
+  }catch(e){}
+}
+
+async function saveClip(blob,name){
+  var dl=window.claude?await claude.use("downloads"):null;
+  if(!dl){status("Save is unavailable here. Press and hold the clip instead.");return}
+  try{await dl.save({filename:name,data:blob});status("Saved.")}
+  catch(e){if(!e||e.code!=="declined")status("Could not save: "+(e&&e.message||"error"))}
+}
+
+async function aiTitle(c,btn,out){
+  var sample=window.claude?await claude.use("sample"):null;
+  if(!sample){out.textContent="AI titles are unavailable in this view.";return}
+  btn.disabled=true;out.textContent="Asking Claude...";
+  try{
+    var cv=document.createElement("canvas"),g=cv.getContext("2d"),sc=Math.min(1,512/v.videoWidth);
+    cv.width=Math.round(v.videoWidth*sc);cv.height=Math.round(v.videoHeight*sc);
+    var imgs=[];
+    for(var k=0;k<3;k++){
+      v.pause();v.currentTime=c.s+(c.e-c.s)*(k+0.5)/3;
+      await new Promise(function(r){v.onseeked=function(){v.onseeked=null;r()}});
+      g.drawImage(v,0,0,cv.width,cv.height);
+      imgs.push(await new Promise(function(r){cv.toBlob(r,"image/jpeg",0.7)}));
+    }
+    var r=await sample("These 3 frames are from a short video clip ("+fmt(c.e-c.s)+" long). Write: 1) a catchy title under 8 words, 2) a one-line hook for social media, 3) three hashtags. Plain text, no preamble.",{images:imgs});
+    c.ai=r.text;out.textContent=r.text;
+  }catch(e){out.textContent="Could not generate: "+(e&&e.message||"error")}
+  btn.disabled=false;
+}
+
+$("file").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  v.src=URL.createObjectURL(f);
+  $("editor").hidden=false;clips=[];render();
+  v._file=f;status("Loaded "+f.name);
+};
+
+$("add").onclick=function(){
+  var s=v.currentTime,e=Math.min(v.duration,s+Math.min(20,plan().maxLen));
+  clips.push({s:s,e:e});render();
+};
+
+$("auto").onclick=async function(){
+  var f=v._file;if(!f)return;
+  status("Analyzing audio loudness...");
+  var picks=[];
+  var L=Math.min(20,plan().maxLen,Math.floor(v.duration));
+  try{
+    var ctx=new (window.AudioContext||window.webkitAudioContext)();
+    var buf=await ctx.decodeAudioData(await f.arrayBuffer());
+    var d=buf.getChannelData(0),sr=buf.sampleRate,secs=Math.floor(buf.duration),en=[];
+    for(var i=0;i<secs;i++){var sum=0;for(var j=i*sr;j<(i+1)*sr&&j<d.length;j+=16){sum+=d[j]*d[j]}en.push(sum)}
+    var win=[];
+    for(var s=0;s+L<=secs;s++){var t=0;for(var k=0;k<L;k++)t+=en[s+k];win.push({s:s,t:t})}
+    win.sort(function(a,b){return b.t-a.t});
+    var top=win.length&&win[0].t>0?win[0].t:1;
+    function pick(sp){win.forEach(function(w){
+      if(picks.length<7&&picks.every(function(p){return Math.abs(p.s-w.s)>=sp})){picks.push({s:w.s,e:w.s+L,score:Math.round(w.t/top*100)})}
+    })}
+    pick(L);if(picks.length<7)pick(L/2);
+    picks.sort(function(a,b){return a.s-b.s});
+    status("Made "+picks.length+" short clips from this video, ranked by a loudness score.");
+  }catch(err){
+    for(var n=0;n<7;n++){var st=(v.duration/7)*n;picks.push({s:st,e:Math.min(v.duration,st+L)})}
+    status("Could not read audio, suggested evenly spaced clips instead.");
+  }
+  clips=picks;render();
+};
+
+function render(){
+  $("clipsCard").hidden=!clips.length;
+  var box=$("clips");box.innerHTML="";
+  clips.forEach(function(c,i){
+    var d=document.createElement("div");d.className="clip";
+    d.innerHTML='<span>#'+(i+1)+'</span> Start <input type="number" step="0.1" min="0" value="'+c.s.toFixed(1)+'"> End <input type="number" step="0.1" min="0" value="'+c.e.toFixed(1)+'"> <span class="muted">'+fmt(c.e-c.s)+(c.score!==undefined?' · viral score '+c.score:'')+'</span>';
+    var ins=d.querySelectorAll("input");
+    ins[0].onchange=function(){c.s=+ins[0].value;render()};
+    ins[1].onchange=function(){c.e=+ins[1].value;render()};
+    var pv=document.createElement("button");pv.className="alt";pv.textContent="Preview";
+    pv.onclick=function(){v.currentTime=c.s;v.play();var chk=setInterval(function(){if(v.currentTime>=c.e||v.paused){v.pause();clearInterval(chk)}},100)};
+    var ex=document.createElement("button");ex.textContent="Export";
+    ex.onclick=function(){exportClip(c)};
+    var rm=document.createElement("button");rm.className="alt";rm.textContent="Remove";
+    rm.onclick=function(){clips.splice(i,1);render()};
+    var ai=document.createElement("button");ai.className="alt";ai.textContent="AI title";
+    var out=document.createElement("div");out.className="ai";out.textContent=c.ai||"";
+    ai.onclick=function(){aiTitle(c,ai,out)};
+    var sn=document.createElement("button");sn.className="alt";sn.textContent="Start = now";
+    sn.onclick=function(){c.s=v.currentTime;if(c.e<=c.s)c.e=Math.min(v.duration,c.s+5);render()};
+    var en=document.createElement("button");en.className="alt";en.textContent="End = now";
+    en.onclick=function(){if(v.currentTime>c.s){c.e=v.currentTime;render()}};
+    d.append(sn,en,pv,ex,ai,rm,out);box.appendChild(d);
+  });
+}
+
+async function exportClip(c){
+  var p=plan();
+  if(busy)return;
+  if($("plan").value==="free"&&trialLeft()<=0){status("Your 30-day free period has ended. Upgrade to keep exporting.");return}
+  checkDay();if(exported>=p.max){status("Plan limit reached. Upgrade to export more.");return}
+  if(c.e-c.s>p.maxLen){status("Clips on the "+p.name+" plan can be up to "+p.maxLen+" s.");return}
+  if(c.e<=c.s||c.e>v.duration+0.5){status("Check the start and end times.");return}
+  busy=true;status("Exporting... keep this tab open while the clip records.");$("prog").value=0;$("prog").hidden=false;
+  var cv=$("cv"),g=cv.getContext("2d");
+  var sc=Math.min(1,p.res/Math.min(v.videoWidth,v.videoHeight));
+  cv.width=Math.round(v.videoWidth*sc);cv.height=Math.round(v.videoHeight*sc);
+  v.pause();v.currentTime=c.s;
+  await new Promise(function(r){v.onseeked=function(){v.onseeked=null;r()}});
+  var out=cv.captureStream(30),vs=v.captureStream?v.captureStream():null;
+  if(vs)vs.getAudioTracks().forEach(function(t){out.addTrack(t)});
+  var chunks=[],rec=new MediaRecorder(out);
+  rec.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+  var done=new Promise(function(r){rec.onstop=r});
+  var raf;
+  function draw(){
+    $("prog").value=Math.min(100,Math.max(0,(v.currentTime-c.s)/(c.e-c.s)*100));
+    g.drawImage(v,0,0,cv.width,cv.height);
+    if(p.wm){g.font="bold "+Math.round(cv.height/22)+"px sans-serif";g.fillStyle="rgba(255,255,255,.75)";g.textAlign="right";g.fillText("ananya.clip",cv.width-16,cv.height-16)}
+    if(v.currentTime>=c.e||v.ended){v.pause();rec.stop();return}
+    raf=requestAnimationFrame(draw);
+  }
+  rec.start();v.play();draw();
+  await done;cancelAnimationFrame(raf);$("prog").hidden=true;
+  var blob=new Blob(chunks,{type:rec.mimeType||"video/webm"});
+  var el=document.createElement("video");el.src=URL.createObjectURL(blob);el.controls=true;el.playsInline=true;
+  var wrap=document.createElement("div");
+  var sv=document.createElement("button");sv.textContent="Save clip";sv.style.marginTop="6px";
+  var ext=blob.type.indexOf("mp4")>-1?"mp4":"webm",nm="clip-"+(exported+1)+"."+ext;
+  sv.onclick=function(){saveClip(blob,nm)};
+  wrap.append(el,sv);
+  $("res").prepend(wrap);$("resCard").hidden=false;
+  exported++;showPlan();busy=false;status("Clip exported.");uploadClip(blob,nm);
+}
+function tsec(s){s=(s||"").trim();if(!s)return NaN;var p=s.split(":").map(Number);if(p.some(isNaN))return NaN;return p.reduce(function(a,n){return a*60+n},0)}
+function hms(t){return Math.floor(t/3600)+"h"+Math.floor(t%3600/60)+"m"+Math.floor(t%60)+"s"}
+function lmsg(t){$("lout").textContent=t}
+function linkInfo(){
+  var u;try{u=new URL($("lurl").value.trim())}catch(e){return null}
+  var s=tsec($("ls").value),e=tsec($("le").value);
+  if(isNaN(s)||isNaN(e)||e<=s)return {err:"Enter a start and end time, like 0:30 and 1:00."};
+  return {u:u,h:u.hostname.replace(/^www\.|^m\./,""),s:s,e:e};
+}
+$("mkLink").onclick=function(){
+  var i=linkInfo(),o=$("lout");
+  if(!i){lmsg("Paste a valid link first.");return}
+  if(i.err){lmsg(i.err);return}
+  o.textContent="";
+  function add(label,url){var d=document.createElement("div"),a=document.createElement("a");a.href=url;a.textContent=url;a.target="_blank";a.rel="noopener";d.append(label+": ",a);o.appendChild(d)}
+  var s=Math.floor(i.s),e=Math.floor(i.e),id=null;
+  if(i.h==="youtu.be")id=i.u.pathname.slice(1);
+  else if(i.h==="youtube.com")id=i.u.searchParams.get("v")||i.u.pathname.split("/")[2];
+  if(id){
+    add("Opens at your start time","https://youtu.be/"+id+"?t="+s);
+    add("Plays only your segment","https://www.youtube.com/embed/"+id+"?start="+s+"&end="+e+"&autoplay=1");
+  }else if(i.h==="twitch.tv"&&i.u.pathname.indexOf("/videos/")===0){
+    add("Opens at your start time","https://www.twitch.tv/videos/"+i.u.pathname.split("/")[2]+"?t="+hms(s));
+  }else if(i.h==="clips.twitch.tv"||i.u.pathname.indexOf("/clip/")>-1){
+    lmsg("Twitch clips are already short. Share the clip link directly.");
+  }else{lmsg("Use a YouTube video or Twitch VOD link.")}
+};
+function addResult(blob,name){
+  var el=document.createElement("video");el.src=URL.createObjectURL(blob);el.controls=true;el.playsInline=true;
+  var sv=document.createElement("button");sv.textContent="Save clip";sv.style.marginTop="6px";
+  sv.onclick=function(){saveClip(blob,name)};
+  var w=document.createElement("div");w.append(el,sv);
+  $("res").prepend(w);$("resCard").hidden=false;
+}
+$("cutSrv").onclick=async function(){
+  var i=linkInfo();
+  if(!i||i.err){lmsg(i?i.err:"Paste a valid link first.");return}
+  if(!$("own").checked){lmsg("Please confirm you own this content or have permission.");return}
+  if($("plan").value==="free"&&trialLeft()<=0){lmsg("Your 30-day free period has ended. Upgrade to keep exporting.");return}
+  checkDay();if(exported>=plan().max){lmsg("Plan limit reached. Upgrade to export more.");return}
+  if(i.e-i.s>plan().maxLen){lmsg("Clips on the "+plan().name+" plan can be up to "+plan().maxLen+" s.");return}
+  lmsg("Sending to your server... this can take a minute.");
+  try{
+    var r=await fetch("/api/clip",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:i.u.href,start:i.s,end:i.e,confirm_rights:true})});
+    if(!r.ok){var j=await r.json().catch(function(){return{}});throw new Error(j.error||"Server error "+r.status)}
+    addResult(await r.blob(),"link-clip.mp4");exported++;showPlan();lmsg("Done. See Exported clips below.");
+  }catch(err){lmsg("Could not get a clip from a server ("+err.message+"). This button works when the page is hosted by the clip server.")}
+};
+$("expAll").onclick=async function(){
+  if(busy||!clips.length)return;
+  for(var i=0;i<clips.length;i++){
+    checkDay();
+    if(exported>=plan().max||($("plan").value==="free"&&trialLeft()<=0))break;
+    await exportClip(clips[i]);
+  }
+};
+var dz=$("drop");
+dz.ondragover=function(e){e.preventDefault();dz.classList.add("over")};
+dz.ondragleave=function(){dz.classList.remove("over")};
+dz.ondrop=function(e){
+  e.preventDefault();dz.classList.remove("over");
+  var f=e.dataTransfer.files[0];
+  if(f&&f.type.indexOf("video/")===0){$("file").files=e.dataTransfer.files;$("file").onchange({target:$("file")})}
+};
+</script>
+</body>
+</html>

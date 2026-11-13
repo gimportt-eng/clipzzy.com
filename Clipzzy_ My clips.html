@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy: My clips</title>
+<style>
+:root{--bg:#f7f7fb;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--card:#fff;--accent:#6c4cff;--at:#fff;--ok:#1a9d5c;--warn:#d9822b;--bad:#c62f3b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101015;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--card:#1a1a23;--accent:#8b72ff;--at:#0e0e14;--ok:#4cd08a;--warn:#f0a35a;--bad:#ff7b86;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+nav,main{max-width:900px;margin:0 auto;padding:16px}
+nav{display:flex;justify-content:space-between;align-items:center}
+nav a{color:var(--text);text-decoration:none;margin-left:16px}
+.logo{font-weight:800;font-size:1.3rem;margin:0}
+h1{font-size:1.5rem;margin:8px 0}
+.muted{color:var(--muted);font-size:.92rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.title{font-weight:700;word-break:break-word}
+.badge{font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:99px;border:1px solid var(--line)}
+.b-active{color:var(--ok)}.b-soon{color:var(--warn)}.b-locked{color:var(--bad)}.b-unlocked{color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+button,.btn{font:inherit;border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at);text-decoration:none;display:inline-block}
+.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+.lock{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:18px;text-align:center;margin-top:12px;color:var(--muted)}
+video{width:100%;max-height:50vh;border-radius:10px;background:#000;margin-top:12px}
+#info{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:16px}
+#msg{min-height:1.3em;color:var(--warn);margin-bottom:8px}
+</style>
+</head>
+<body>
+<div style="background:#ffe9a8;color:#5a4300;text-align:center;padding:8px;font-size:.9rem">Preview mode: sample clips and a fake payment. Nothing is saved or charged.</div>
+<nav><p class="logo">🎬 Clipzzy</p><div><a href="https://claude.ai/artifact/15CCLGWXUwLqVJoKFa5m4H">Clipper</a><a href="#">My clips</a></div></nav>
+<main>
+<h1>My clips</h1>
+<div id="info" class="muted">Clips are kept for 4 days. After that they are locked until you unlock them for $4.</div>
+<div id="msg" role="status"></div>
+<div id="list"></div>
+</main>
+<script>
+window.PREVIEW=true;
+(function(){
+ var H=3600*1000,now=Date.now(),sec=function(ms){return Math.floor(ms/1000)};
+ var clips=[
+  {id:1,title:"Funny moment from stream",size:8400000,created_at:sec(now-5*H)},
+  {id:2,title:"Product launch highlight",size:15200000,created_at:sec(now-3.2*24*H)},
+  {id:3,title:"Podcast intro clip",size:6100000,created_at:sec(now-6*24*H)},
+  {id:4,title:"Tutorial: first step",size:9900000,created_at:sec(now-9*24*H),unlocked:true}
+ ];
+ function view(c){var left=c.created_at+4*86400-sec(Date.now());
+  var st=c.unlocked?"unlocked":left>0?"active":"locked";
+  var o={id:c.id,title:c.title,size:c.size,created_at:c.created_at,status:st,price_cents:400};
+  if(st==="active")o.seconds_left=left;return o}
+ function resp(s,o){return Promise.resolve(new Response(JSON.stringify(o),{status:s,headers:{"Content-Type":"application/json"}}))}
+ var real=window.fetch;
+ window.fetch=function(p,o){
+  if(typeof p!=="string"||p.indexOf("/api/")!==0)return real.apply(this,arguments);
+  if(p==="/api/clips")return resp(200,{clips:clips.map(view),lock_days:4,price_cents:400});
+  var m=p.match(/^\/api\/clips\/(\d+)\/(unlock|delete)$/);
+  if(m){var id=+m[1];
+   if(m[2]==="delete"){clips=clips.filter(function(c){return c.id!==id});return resp(200,{ok:true})}
+   return resp(200,{url:"#"})}
+  return resp(404,{error:"Not found"});
+ };
+ window.PREVIEW_UNLOCK=function(id){
+  if(!confirm("Preview: on the live site this opens PayPal to pay $4. Pretend the payment succeeded?")){document.querySelectorAll("button").forEach(function(b){b.disabled=false});msg("");return}
+  clips.forEach(function(c){if(c.id===id)c.unlocked=true});msg("Unlocked (preview).");load();
+ };
+})();
+</script>
+<script>
+var $=function(id){return document.getElementById(id)};
+function msg(t){$("msg").textContent=t||""}
+function left(s){var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return d>0?d+"d "+h+"h":h>0?h+"h "+m+"m":m+" min"}
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function size(b){return b>1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
+async function api(path,body){
+  var r=await fetch(path,body===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  var j=await r.json().catch(function(){return{}});
+  if(!r.ok){var e=new Error(j.error||"Something went wrong ("+r.status+")");e.status=r.status;throw e}
+  return j;
+}
+function card(c,price){
+  var d=el("div","card"),top=el("div","top"),l=el("div"),b=el("span","badge");
+  l.append(el("div","title",c.title),el("div","muted","Saved "+new Date(c.created_at*1000).toLocaleDateString()+" · "+size(c.size)));
+  if(c.status==="active"){var soon=c.seconds_left<86400;b.className="badge "+(soon?"b-soon":"b-active");b.textContent=left(c.seconds_left)+" left"}
+  else if(c.status==="locked"){b.className="badge b-locked";b.textContent="Locked"}
+  else{b.className="badge b-unlocked";b.textContent="Unlocked"}
+  top.append(l,b);d.appendChild(top);
+  var area=el("div"),row=el("div","row");
+  if(c.status==="locked"){
+    area.appendChild(el("div","lock","🔒 This clip was kept for 4 days and is now locked."));
+    var u=el("button","","Unlock for $"+(price/100).toFixed(0));
+    u.onclick=async function(){
+      u.disabled=true;msg("Opening PayPal...");
+      try{var j=await api("/api/clips/"+c.id+"/unlock",{});if(window.PREVIEW_UNLOCK)return window.PREVIEW_UNLOCK(c.id);location.href=j.url}
+      catch(e){msg(e.message);u.disabled=false}
+    };
+    row.appendChild(u);
+  }else{
+    var w=el("button","","Watch");
+    w.onclick=function(){
+      if(area.firstChild){area.innerHTML="";return}
+      if(window.PREVIEW){area.appendChild(el("div","lock","Video playback works on the live site."));return}
+      var v=document.createElement("video");v.controls=true;v.playsInline=true;v.src="/api/clips/"+c.id+"/file";area.appendChild(v);
+    };
+    var dl=el("a","btn alt","Download");dl.href="/api/clips/"+c.id+"/file?download=1";
+    if(window.PREVIEW){dl.href="#";dl.onclick=function(e){e.preventDefault();msg("Downloads work on the live site.")}}
+    row.append(w,dl);
+  }
+  var x=el("button","alt","Delete");
+  x.onclick=async function(){
+    if(!confirm("Delete this clip permanently?"))return;
+    try{await api("/api/clips/"+c.id+"/delete",{});load()}catch(e){msg(e.message)}
+  };
+  row.appendChild(x);d.append(area,row);return d;
+}
+async function load(){
+  var box=$("list");
+  try{
+    var j=await api("/api/clips");box.innerHTML="";
+    if(!j.clips.length){box.appendChild(el("div","card muted","No clips yet. Export a clip in the clipper and it will appear here."));return}
+    j.clips.forEach(function(c){box.appendChild(card(c,j.price_cents))});
+  }catch(e){
+    box.innerHTML="";
+    if(e.status===401){var c=el("div","card"),a=el("a","btn","Sign up or log in");a.href="/register";c.append(el("p","muted","Please log in to see your clips."),a);box.appendChild(c)}
+    else msg(e.message);
+  }
+}
+load();
+if(location.search.indexOf("paid=1")>-1){
+  msg("Payment received. Unlocking your clip...");
+  var n=0,t=setInterval(function(){load();if(++n>=6){clearInterval(t);msg("")}},2500);
+}
+</script>
+</body>
+</html>

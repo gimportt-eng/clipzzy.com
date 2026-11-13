@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy Pricing</title>
+<style>
+:root{--bg:#f7f7fb;--card:#fff;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--accent:#6c4cff;--accent-text:#fff;--badge:#ffe9a8;--badge-text:#5a4300;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--accent-text:#0e0e14;--badge:#4a3a08;--badge-text:#ffe9a8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--accent-text:#0e0e14;--badge:#4a3a08;--badge-text:#ffe9a8;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding:48px 20px}
+h1{text-align:center;font-size:clamp(1.8rem,5vw,2.6rem);margin:0 0 8px}
+.sub{text-align:center;color:var(--muted);margin:0 0 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px;display:flex;flex-direction:column;position:relative}
+.card.pop{border:2px solid var(--accent)}
+.badge{position:absolute;top:-12px;right:20px;background:var(--badge);color:var(--badge-text);font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:99px}
+h2{margin:0;font-size:1.2rem}
+.price{font-size:2.4rem;font-weight:800;margin:12px 0 0}
+.price small{font-size:1rem;font-weight:500;color:var(--muted)}
+.note{color:var(--muted);font-size:.9rem;min-height:1.4em;margin:0 0 20px}
+ul{list-style:none;padding:0;margin:0 0 24px;flex:1}
+li{padding:6px 0 6px 26px;position:relative}
+li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+li.no{color:var(--muted)}
+li.no::before{content:"–";color:var(--muted)}
+button{border:0;border-radius:10px;padding:12px;font-size:1rem;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-text)}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+#msg{text-align:center;margin-top:24px;color:var(--accent);font-weight:600;min-height:1.5em}
+</style>
+</head>
+<body>
+<main>
+<h1>Turn long videos into viral clips</h1>
+<p class="sub">Pick a plan. Upgrade or cancel anytime.</p>
+<div class="grid">
+  <section class="card">
+    <h2>Free</h2>
+    <div class="price">$0 <small>/ 30 days</small></div>
+    <p class="note">Free for 30 days, then pick a plan</p>
+    <ul>
+      <li>7 exports per day</li>
+      <li>720p export</li>
+      <li>Videos up to 10 min</li>
+      <li class="no">Watermark: ananya.clip</li>
+      <li class="no">Advanced AI editing</li>
+    </ul>
+    <button class="alt" data-plan="Free">Start free</button>
+  </section>
+  <section class="card">
+    <h2>Monthly</h2>
+    <div class="price">$9 <small>/ month</small></div>
+    <p class="note">Flexible, cancel anytime</p>
+    <ul>
+      <li>100 clips per month</li>
+      <li>1080p export</li>
+      <li>Videos up to 2 hours</li>
+      <li>No watermark</li>
+      <li>Auto captions and AI editing</li>
+    </ul>
+    <button data-plan="Monthly">Choose Monthly</button>
+  </section>
+  <section class="card pop">
+    <span class="badge">Save 81%</span>
+    <h2>Annual</h2>
+    <div class="price">$20 <small>/ year</small></div>
+    <p class="note">Just $1.67 per month</p>
+    <ul>
+      <li>Unlimited clips</li>
+      <li>1080p export</li>
+      <li>Videos up to 4 hours</li>
+      <li>No watermark</li>
+      <li>Auto captions and AI editing</li>
+      <li>Priority processing</li>
+    </ul>
+    <button data-plan="Annual">Choose Annual</button>
+  </section>
+</div>
+<div id="msg" role="status"></div>
+</main>
+<script>
+document.querySelectorAll("button[data-plan]").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.getElementById("msg").textContent="You selected the "+b.dataset.plan+" plan. Connect your checkout here.";
+  });
+});
+</script>
+</body>
+</html>

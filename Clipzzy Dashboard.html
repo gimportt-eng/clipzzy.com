@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy Dashboard</title>
+<style>
+:root{--bg:#f7f7fb;--card:#fff;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--accent:#6c4cff;--at:#fff;--ok:#1a9d5c;--warn:#d9822b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:960px;margin:0 auto;padding:24px 16px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+h1{font-size:1.4rem;margin:0}
+.tabs{display:flex;gap:6px}
+button,select,input{font:inherit}
+button{border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at)}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.on{background:var(--accent);color:var(--at)}
+select,input{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:1.7rem}
+.muted{color:var(--muted);font-size:.9rem}
+.bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--accent)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-top:1px solid var(--line);white-space:nowrap}
+.note{color:var(--warn);font-size:.9rem;min-height:1.3em}
+#welcome{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));background:rgba(10,10,18,.55);opacity:1;transition:opacity .4s}
+#welcome[hidden]{display:none}
+#welcome.out{opacity:0}
+.wcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;max-width:380px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.wemoji{font-size:2.4rem}
+.wcard h2{margin:6px 0 2px;font-size:1.5rem}
+.wcard ul{list-style:none;padding:0;margin:14px 0;text-align:left;font-size:.92rem;color:var(--muted)}
+.wcard li{padding:3px 0}
+.wbar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:14px 0 10px}
+.wbar i{display:block;height:100%;width:100%;background:var(--accent);transition:width 7s linear}
+#welcome.run .wbar i{width:0}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>📊 Clipzzy Dashboard</h1>
+  <div class="tabs">
+    <button id="tabMe" class="on">My account</button>
+    <button id="tabAdmin" class="alt" hidden>Admin</button>
+  </div>
+</header>
+<div class="note" id="note"></div>
+
+<section id="me">
+  <div class="stats">
+    <div class="stat"><span class="muted">Current plan</span><b id="sPlan"></b></div>
+    <div class="stat"><span class="muted">Exports used</span><b id="sUsed"></b></div>
+    <div class="stat"><span class="muted">Exports left</span><b id="sLeft"></b></div>
+  </div>
+  <div class="card">
+    <strong>Usage</strong>
+    <div class="bar"><i id="uBar" style="width:0"></i></div>
+    <div class="muted" id="uTxt"></div>
+    <div class="row">
+      <label class="muted">Change plan (demo, no payment)
+        <select id="planSel"><option value="free">Free</option><option value="monthly">Monthly, $9/mo</option><option value="annual">Annual, $20/yr</option></select>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <strong>Clip history</strong>
+    <div class="row">
+      <input id="cTitle" placeholder="Clip title" style="flex:1;min-width:160px">
+      <input id="cLen" type="number" min="1" value="20" style="width:90px" aria-label="Length in seconds">
+      <button id="cAdd">Log a test clip</button>
+      <button class="alt" id="cReset">Reset my data</button>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Title</th><th>Length</th><th>When</th></tr></thead><tbody id="cBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="admin" hidden>
+  <div class="stats">
+    <div class="stat"><span class="muted">Accounts</span><b id="aTot">0</b></div>
+    <div class="stat"><span class="muted">Paying accounts</span><b id="aPaid">0</b></div>
+    <div class="stat"><span class="muted">Est. MRR</span><b id="aMrr">$0</b></div>
+    <div class="stat"><span class="muted">Exports this month</span><b id="aExp">0</b></div>
+  </div>
+  <div class="card">
+    <strong>Plan mix</strong>
+    <div id="mix"></div>
+    <p class="muted">MRR is estimated from plan prices (Monthly $9, Annual $20 / 12). It is not real billing data.</p>
+  </div>
+  <div class="card">
+    <strong>Accounts</strong>
+    <div class="scroll"><table><thead><tr><th>Account</th><th>Plan</th><th>Exports</th><th>Last active</th></tr></thead><tbody id="aBody"></tbody></table></div>
+  </div>
+</section>
+</main>
+<div id="welcome" role="dialog" aria-label="Welcome" hidden>
+  <div class="wcard">
+    <div class="wemoji">👋</div>
+    <h2 id="wHi">Welcome!</h2>
+    <div><b id="wPlan"></b></div>
+    <div class="muted" id="wInfo"></div>
+    <ul>
+      <li>🎬 Clips are saved for 4 days, then locked until you unlock them for $4.</li>
+      <li>⚡ Use "Log a test clip" to see how your history looks.</li>
+      <li>💬 Need help? Message @21anu_21 on Instagram.</li>
+    </ul>
+    <div class="wbar"><i></i></div>
+    <button id="wSkip">Get started</button>
+  </div>
+</div>
+<script>
+var PL={free:{n:"Free",max:7,price:0},monthly:{n:"Monthly",max:100,price:9},annual:{n:"Annual",max:Infinity,price:20/12}};
+var $=function(id){return document.getElementById(id)};
+function mk(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)}
+var S={plan:"free",exports:0,month:mk(),clips:[]},db=null,uid=null,isAdmin=false,A=[];
+
+function freeLeft(){return Math.ceil(30-(Date.now()-(S.freeStart||Date.now()))/86400000)}
+function note(t){$("note").textContent=t||""}
+function td(tr,t){var c=document.createElement("td");c.textContent=t;tr.appendChild(c)}
+function ago(ts){var m=Math.round((Date.now()-ts)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"}
+
+async function save(){
+  if(!db||!uid)return;
+  try{
+    await db.doc("data/users/"+uid+"/profile").set(S);
+    await db.doc("accounts/"+uid).set({plan:S.plan,exports:S.exports,month:S.month,last:Date.now()});
+  }catch(e){note("Could not save: "+((e&&(e.message||e.code))||"error"))}
+}
+
+function render(){
+  var p=PL[S.plan],left=p.max===Infinity?"Unlimited":Math.max(0,p.max-S.exports);
+  $("sPlan").textContent=p.n;$("sUsed").textContent=S.exports;$("sLeft").textContent=left;
+  var pct=p.max===Infinity?Math.min(100,S.exports*2):Math.min(100,S.exports/p.max*100);
+  $("uBar").style.width=pct+"%";
+  $("uTxt").textContent=p.max===Infinity?"No export limit on this plan.":S.exports+" of "+p.max+" exports used"+(S.plan==="free"?" today. "+(freeLeft()>0?freeLeft()+" days left in your free period.":"Your 30-day free period has ended."):".");
+  $("planSel").value=S.plan;
+  var b=$("cBody");b.innerHTML="";
+  if(!S.clips.length){var r=document.createElement("tr");td(r,"No clips yet.");b.appendChild(r)}
+  S.clips.slice().reverse().forEach(function(c){
+    var r=document.createElement("tr");td(r,c.title);td(r,c.len+" s");td(r,ago(c.at));b.appendChild(r);
+  });
+}
+
+function renderAdmin(){
+  var cnt={free:0,monthly:0,annual:0},ex=0,mrr=0;
+  A.forEach(function(a){if(cnt[a.plan]!==undefined)cnt[a.plan]++;if(a.month===mk())ex+=a.exports||0;mrr+=(PL[a.plan]||PL.free).price});
+  $("aTot").textContent=A.length;$("aPaid").textContent=cnt.monthly+cnt.annual;
+  $("aMrr").textContent="$"+mrr.toFixed(2);$("aExp").textContent=ex;
+  var mix=$("mix");mix.innerHTML="";
+  ["free","monthly","annual"].forEach(function(k){
+    var w=document.createElement("div"),t=document.createElement("div"),bar=document.createElement("div"),i=document.createElement("i");
+    t.className="muted";t.textContent=PL[k].n+": "+cnt[k];bar.className="bar";
+    i.style.width=(A.length?cnt[k]/A.length*100:0)+"%";bar.appendChild(i);w.append(t,bar);mix.appendChild(w);
+  });
+  var b=$("aBody");b.innerHTML="";
+  A.slice().sort(function(x,y){return (y.last||0)-(x.last||0)}).forEach(function(a){
+    var r=document.createElement("tr");td(r,"#"+a.id.slice(0,6));td(r,(PL[a.plan]||PL.free).n);td(r,a.exports||0);td(r,a.last?ago(a.last):"-");b.appendChild(r);
+  });
+  if(!A.length){var r=document.createElement("tr");td(r,"No accounts yet.");b.appendChild(r)}
+}
+
+function tab(admin){
+  $("me").hidden=admin;$("admin").hidden=!admin;
+  $("tabMe").className=admin?"alt":"on";$("tabAdmin").className=admin?"on":"alt";
+}
+$("tabMe").onclick=function(){tab(false)};
+$("tabAdmin").onclick=function(){tab(true)};
+
+$("planSel").onchange=function(){S.plan=$("planSel").value;render();save()};
+$("cAdd").onclick=function(){
+  var p=PL[S.plan];
+  if(S.plan==="free"&&freeLeft()<=0){note("Your 30-day free period has ended. Change plan to log more exports.");return}
+  if(S.exports>=p.max){note("Plan limit reached. Change plan to log more exports.");return}
+  note(db?"":"Not signed in, so changes are not saved.");
+  S.exports++;
+  S.clips.push({title:$("cTitle").value.trim()||"Untitled clip",len:Math.max(1,+$("cLen").value||20),at:Date.now()});
+  S.clips=S.clips.slice(-20);$("cTitle").value="";render();save();
+};
+$("cReset").onclick=function(){S.exports=0;S.clips=[];render();save()};
+
+(async function init(){
+  try{
+    if(window.claude){
+      var u=await claude.use("user");db=await claude.use("db");
+      if(u&&db){
+        uid=await u.id();isAdmin=await u.canEdit();
+        var p=await db.doc("data/users/"+uid+"/profile").get();
+        if(p.exists)S=Object.assign(S,p.data());
+        if(isAdmin)db.collection("accounts").onSnapshot(function(s){
+          A=s.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});renderAdmin();
+        },function(){});
+      }
+    }
+  }catch(e){}
+  var td0=new Date().toDateString();
+  if(S.month!==mk()||(S.plan==="free"&&S.day!==td0)){S.month=mk();S.exports=0}
+  S.day=td0;if(!S.freeStart)S.freeStart=Date.now();
+  $("tabAdmin").hidden=!isAdmin;
+  if(!db)note("Not signed in, so changes are not saved.");
+  render();renderAdmin();showWelcome();
+})();
+
+function showWelcome(){
+  var w=$("welcome"),p=PL[S.plan],h=new Date().getHours();
+  $("wHi").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+"! Welcome to Clipzzy";
+  $("wPlan").textContent=p.n+" plan";
+  var bits=[p.max===Infinity?"Unlimited exports":Math.max(0,p.max-S.exports)+" exports left "+(S.plan==="free"?"today":"this month")];
+  if(S.plan==="free")bits.push(Math.max(0,freeLeft())+" free days left");
+  $("wInfo").textContent=bits.join(" · ");
+  w.hidden=false;
+  requestAnimationFrame(function(){requestAnimationFrame(function(){w.classList.add("run")})});
+  var closed=false;
+  function close(){if(closed)return;closed=true;w.classList.add("out");setTimeout(function(){w.hidden=true},400)}
+  $("wSkip").onclick=close;
+  w.onclick=function(e){if(e.target===w)close()};
+  setTimeout(close,7000);
+}
+</script>
+</body>
+</html>

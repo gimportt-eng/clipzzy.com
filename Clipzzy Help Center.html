@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy Help Center</title>
+<style>
+:root{--bg:#f7f7fb;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--card:#fff;--accent:#6c4cff;--at:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101015;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--card:#1a1a23;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:24px 16px}
+a{color:var(--accent)}
+h1{margin:8px 0}h2{margin:32px 0 12px;font-size:1.2rem}
+.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{margin:0 0 4px}.card p{margin:0 0 12px;color:var(--muted);font-size:.95rem}
+.btn{display:inline-block;background:var(--accent);color:var(--at);padding:10px 16px;border-radius:10px;font-weight:700;text-decoration:none}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:10px}
+summary{cursor:pointer;font-weight:600}
+details p{margin:10px 0 0;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p><a href="/">← Clipzzy</a></p>
+<h1>Help center</h1>
+<p class="muted">Find a quick answer below, or message us. We reply as soon as we can.</p>
+
+<div class="cards">
+  <div class="card">
+    <h3>Instagram</h3>
+    <p>Send us a message on Instagram.</p>
+    <a class="btn" href="https://instagram.com/21anu_21" target="_blank" rel="noopener">@21anu_21</a>
+  </div>
+  <div class="card" id="tgCard" hidden>
+    <h3>Telegram</h3>
+    <p>Chat with us on Telegram.</p>
+    <a class="btn" id="tgLink" href="#" target="_blank" rel="noopener"></a>
+  </div>
+</div>
+<p class="muted" style="margin-top:12px">When you write, include the email you signed up with so we can find your account.</p>
+
+<h2>Common questions</h2>
+<details><summary>How does the free plan work?</summary>
+<p>New accounts get 30 days free: up to 7 exports per day, clips up to 30 seconds, 720p quality, and an "ananya.clip" watermark. After 30 days you need a paid plan to keep exporting.</p></details>
+<details><summary>What do the paid plans include?</summary>
+<p>Monthly ($9 per month): 100 exports per month, clips up to 3 minutes, 1080p, no watermark. Annual ($20 per year): unlimited exports, clips up to 10 minutes, 1080p, no watermark.</p></details>
+<details><summary>How long are my clips kept?</summary>
+<p>Clips you export while logged in are saved in My clips for 4 days. After that they are locked. You can unlock a locked clip for $4 with PayPal. Locked clips that are not unlocked may be deleted after another 30 days, so download the ones you want to keep.</p></details>
+<details><summary>I paid to unlock a clip but it is still locked</summary>
+<p>Refresh the My clips page first. If it is still locked, message us with your account email and the PayPal receipt, and we will fix it.</p></details>
+<details><summary>How do I cancel my subscription?</summary>
+<p>Cancel it from your PayPal account under automatic payments. Your plan returns to Free within a few hours after you cancel.</p></details>
+<details><summary>Can I clip any YouTube or Twitch video?</summary>
+<p>Only clip videos you own or have permission to use. You confirm this each time you cut from a link. See the <a href="/terms">terms</a>.</p></details>
+<details><summary>I forgot my password</summary>
+<p>Automatic password reset is not available yet. Message us from the email on your account and we will help you.</p></details>
+<details><summary>My export failed or looks wrong</summary>
+<p>Try Chrome or Edge, and check that your start and end times are inside the video. If it keeps failing, message us with the video type and what happened.</p></details>
+
+<p class="muted" style="margin-top:28px"><a href="/terms">Terms</a> · <a href="/pricing">Pricing</a> · <a href="/register">Account</a></p>
+</main>
+<script>
+// Set your Telegram username here (without the @) to show the Telegram button.
+var TELEGRAM_USER="";
+if(TELEGRAM_USER){
+  var a=document.getElementById("tgLink");
+  a.href="https://t.me/"+TELEGRAM_USER;a.textContent="@"+TELEGRAM_USER;
+  document.getElementById("tgCard").hidden=false;
+}
+</script>
+</body>
+</html>

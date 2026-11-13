@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clipzzy: sign up or log in</title>
+<style>
+:root{--bg:#f7f7fb;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--card:#fff;--accent:#6c4cff;--at:#fff;--bad:#c62f3b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#101015;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--card:#1a1a23;--accent:#8b72ff;--at:#0e0e14;--bad:#ff7b86;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:420px;margin:0 auto;padding:32px 16px}
+a{color:var(--accent)}
+.logo{font-weight:800;font-size:1.3rem;text-align:center;margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+button,input{font:inherit}
+button{border:0;border-radius:8px;padding:11px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at)}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+.tabs button{flex:1}
+label{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
+input[type=email],input[type=password]{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:4px}
+.check{display:flex;gap:8px;align-items:flex-start;color:var(--text)}
+#go{width:100%;margin-top:16px}
+#msg{min-height:1.4em;margin-top:12px;color:var(--bad);font-size:.92rem}
+.stat{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
+.row{display:flex;gap:8px;margin-top:16px}
+.row a,.row button{flex:1;text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+<div style="background:#ffe9a8;color:#5a4300;text-align:center;padding:8px;font-size:.9rem">Preview mode: demo only. Nothing is saved and no real accounts are created.</div>
+<main>
+<p class="logo">🎬 Clipzzy</p>
+
+<div class="card" id="auth">
+  <div class="tabs"><button id="tSign">Sign up</button><button class="alt" id="tLog">Log in</button></div>
+  <label for="em">Email</label>
+  <input type="email" id="em" autocomplete="email">
+  <label for="pw">Password (8+ characters)</label>
+  <input type="password" id="pw" autocomplete="new-password">
+  <label class="check" id="agreeRow"><input type="checkbox" id="agree"> <span>I agree to the terms and confirm I will only clip content I own or have permission to use.</span></label>
+  <button id="go">Create account</button>
+  <div id="msg" role="alert"></div>
+  <p class="muted" style="color:var(--muted);font-size:.85rem;margin:8px 0 0">Free for 30 days: 7 exports per day, 720p, ananya.clip watermark.</p>
+</div>
+
+<div class="card" id="acct" hidden>
+  <strong id="hello"></strong>
+  <div id="stats"></div>
+  <div class="row"><a class="btn" href="https://claude.ai/artifact/15CCLGWXUwLqVJoKFa5m4H"><button style="width:100%">Open the clipper</button></a><button class="alt" id="out">Log out</button></div>
+</div>
+</main>
+<script>
+(function(){
+ var users={},cur=null,realFetch=window.fetch;
+ function prof(u){return {email:u.email,plan:"free",plan_name:"Free",used:0,limit:7,period:"day",max_len:30,trial_days_left:30}}
+ function resp(status,obj){return Promise.resolve(new Response(JSON.stringify(obj),{status:status,headers:{"Content-Type":"application/json"}}))}
+ window.fetch=function(path,opts){
+  if(typeof path!=="string"||path.indexOf("/api/")!==0)return realFetch.apply(this,arguments);
+  var b={};try{b=JSON.parse((opts&&opts.body)||"{}")}catch(e){}
+  if(path==="/api/me")return cur?resp(200,prof(cur)):resp(401,{error:"Not logged in"});
+  if(path==="/api/logout"){cur=null;return resp(200,{ok:true})}
+  var em=String(b.email||"").trim().toLowerCase(),pw=String(b.password||"");
+  if(path==="/api/register"){
+   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return resp(400,{error:"Enter a valid email address."});
+   if(pw.length<8)return resp(400,{error:"Password must be 8 to 128 characters."});
+   if(b.agree!==true)return resp(400,{error:"Please agree to the terms to continue."});
+   if(users[em])return resp(409,{error:"That email is already registered. Try logging in."});
+   cur=users[em]={email:em,pw:pw};return resp(201,prof(cur));
+  }
+  if(path==="/api/login"){var u=users[em];if(!u||u.pw!==pw)return resp(401,{error:"Wrong email or password."});cur=u;return resp(200,prof(u))}
+  return resp(404,{error:"Not found"});
+ };
+})();
+</script>
+<script>
+var $=function(id){return document.getElementById(id)};
+var mode="sign";
+function setMode(m){
+  mode=m;
+  $("tSign").className=m==="sign"?"":"alt";$("tLog").className=m==="log"?"":"alt";
+  $("agreeRow").hidden=m==="log";
+  $("go").textContent=m==="sign"?"Create account":"Log in";
+  $("pw").autocomplete=m==="sign"?"new-password":"current-password";
+  $("msg").textContent="";
+}
+$("tSign").onclick=function(){setMode("sign")};
+$("tLog").onclick=function(){setMode("log")};
+
+function stat(k,v){var d=document.createElement("div");d.className="stat";var a=document.createElement("span"),b=document.createElement("b");a.textContent=k;b.textContent=v;d.append(a,b);$("stats").appendChild(d)}
+function showAccount(p){
+  $("auth").hidden=true;$("acct").hidden=false;
+  $("hello").textContent=p.email;$("stats").innerHTML="";
+  stat("Plan",p.plan_name);
+  stat("Exports this "+p.period,p.used+(p.limit===null?"":" of "+p.limit));
+  stat("Max clip length",p.max_len+" s");
+  if(p.trial_days_left!==undefined)stat("Free period",p.trial_days_left>0?p.trial_days_left+" days left":"Ended");
+}
+async function call(path,body){
+  var r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body||{})});
+  var j=await r.json().catch(function(){return{}});
+  if(!r.ok)throw new Error(j.error||"Something went wrong ("+r.status+")");
+  return j;
+}
+$("go").onclick=async function(){
+  $("msg").textContent="";$("go").disabled=true;
+  try{
+    var body={email:$("em").value,password:$("pw").value};
+    if(mode==="sign")body.agree=$("agree").checked;
+    showAccount(await call(mode==="sign"?"/api/register":"/api/login",body));
+    $("pw").value="";
+  }catch(e){$("msg").textContent=e.message}
+  $("go").disabled=false;
+};
+[$("em"),$("pw")].forEach(function(el){el.addEventListener("keydown",function(e){if(e.key==="Enter")$("go").click()})});
+$("out").onclick=async function(){await call("/api/logout");$("acct").hidden=true;$("auth").hidden=false;setMode("log")};
+fetch("/api/me").then(function(r){return r.ok?r.json():null}).then(function(p){if(p)showAccount(p)}).catch(function(){});
+setMode("sign");
+</script>
+</body>
+</html>
