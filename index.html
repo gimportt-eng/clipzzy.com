@@ -101,6 +101,8 @@ input,progress{accent-color:var(--accent)}
 </main>
 <canvas id="cv" hidden></canvas>
 <script>
+const RENDER_URL = "https://yt-clipper-apii.onrender.com";
+
 var PLANS={
   free:{name:"Free",max:7,maxLen:30,wm:true,res:720,info:"Free for 30 days: 7 exports per day, 30 s max per clip, 720p, ananya.clip watermark."},
   monthly:{name:"Monthly",max:100,maxLen:180,wm:false,res:1080,info:"Monthly: 100 exports, 3 min per clip, 1080p, no watermark."},
@@ -303,12 +305,17 @@ $("cutSrv").onclick=async function(){
   if($("plan").value==="free"&&trialLeft()<=0){lmsg("Your 30-day free period has ended. Upgrade to keep exporting.");return}
   checkDay();if(exported>=plan().max){lmsg("Plan limit reached. Upgrade to export more.");return}
   if(i.e-i.s>plan().maxLen){lmsg("Clips on the "+plan().name+" plan can be up to "+plan().maxLen+" s.");return}
-  lmsg("Sending to your server... this can take a minute.");
+  lmsg("Sending to your Render server... this can take a minute.");
   try{
-    var r=await fetch("/api/clip",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:i.u.href,start:i.s,end:i.e,confirm_rights:true})});
-    if(!r.ok){var j=await r.json().catch(function(){return{}});throw new Error(j.error||"Server error "+r.status)}
+    var params = new URLSearchParams({
+      url: i.u.href,
+      start: $("ls").value.trim(),
+      end: $("le").value.trim()
+    });
+    var r = await fetch(RENDER_URL + "/clip?" + params.toString());
+    if(!r.ok){var j=await r.json().catch(function(){return{}});throw new Error(j.detail||"Server error "+r.status)}
     addResult(await r.blob(),"link-clip.mp4");exported++;showPlan();lmsg("Done. See Exported clips below.");
-  }catch(err){lmsg("Could not get a clip from a server ("+err.message+"). This button works when the page is hosted by the clip server.")}
+  }catch(err){lmsg("Could not get a clip from server ("+err.message+").")}
 };
 $("expAll").onclick=async function(){
   if(busy||!clips.length)return;
