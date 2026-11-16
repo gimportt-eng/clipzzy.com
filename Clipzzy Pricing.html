@@ -32,6 +32,20 @@ button{border:0;border-radius:10px;padding:12px;font-size:1rem;font-weight:600;c
 button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
 #msg{text-align:center;margin-top:24px;color:var(--accent);font-weight:600;min-height:1.5em}
 </style>
+<meta name="theme-color" content="#070b09">
+<style id="neon">
+:root:root:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;--ok:#39ff88;--warn:#ffd24a;--bad:#ff5c7a;--badge:#12361f;--badge-text:#9dffc5;color-scheme:dark}
+body{background:radial-gradient(900px 450px at 85% -10%,rgba(57,255,136,.13),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(0,200,255,.08),transparent 60%),#070b09!important;background-attachment:fixed}
+.card,.stat,details,.wcard{box-shadow:0 8px 30px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s}
+.card:hover,.stat:hover{border-color:rgba(57,255,136,.45)}
+button:not(.alt):not(.yes):not(.no),.btn:not(.alt){background:var(--accent);color:var(--at);font-weight:800;box-shadow:0 0 18px rgba(57,255,136,.35)}
+button:not(.alt):not(.yes):not(.no):hover:not(:disabled),.btn:not(.alt):hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(57,255,136,.55)}
+.alt{border-color:rgba(57,255,136,.35)!important}
+a{color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+input,progress{accent-color:var(--accent)}
+::selection{background:var(--accent);color:var(--at)}
+</style>
 </head>
 <body>
 <main>
@@ -44,10 +58,10 @@ button.alt{background:transparent;color:var(--text);border:1px solid var(--line)
     <p class="note">Free for 30 days, then pick a plan</p>
     <ul>
       <li>7 exports per day</li>
-      <li>720p export</li>
-      <li>Videos up to 10 min</li>
+      <li>Clips up to 30 seconds, 720p</li>
+      <li>7 viral clips per video</li>
+      <li>AI titles and hooks</li>
       <li class="no">Watermark: ananya.clip</li>
-      <li class="no">Advanced AI editing</li>
     </ul>
     <button class="alt" data-plan="Free">Start free</button>
   </section>
@@ -56,11 +70,11 @@ button.alt{background:transparent;color:var(--text);border:1px solid var(--line)
     <div class="price">$9 <small>/ month</small></div>
     <p class="note">Flexible, cancel anytime</p>
     <ul>
-      <li>100 clips per month</li>
-      <li>1080p export</li>
-      <li>Videos up to 2 hours</li>
+      <li>100 exports per month</li>
+      <li>Clips up to 3 minutes, 1080p</li>
+      <li>7 viral clips per video</li>
+      <li>AI titles and hooks</li>
       <li>No watermark</li>
-      <li>Auto captions and AI editing</li>
     </ul>
     <button data-plan="Monthly">Choose Monthly</button>
   </section>
@@ -70,16 +84,26 @@ button.alt{background:transparent;color:var(--text);border:1px solid var(--line)
     <div class="price">$20 <small>/ year</small></div>
     <p class="note">Just $1.67 per month</p>
     <ul>
-      <li>Unlimited clips</li>
-      <li>1080p export</li>
-      <li>Videos up to 4 hours</li>
+      <li>Unlimited exports</li>
+      <li>Clips up to 10 minutes, 1080p</li>
+      <li>7 viral clips per video</li>
+      <li>AI titles and hooks</li>
       <li>No watermark</li>
-      <li>Auto captions and AI editing</li>
-      <li>Priority processing</li>
     </ul>
     <button data-plan="Annual">Choose Annual</button>
   </section>
 </div>
+<div class="cmp-wrap"><table class="cmp"><thead><tr><th>Compare plans</th><th>Free</th><th>Monthly</th><th>Annual</th></tr></thead><tbody>
+<tr><td>Price</td><td>$0 for 30 days</td><td>$9 / month</td><td>$20 / year</td></tr>
+<tr><td>Exports</td><td>7 per day</td><td>100 per month</td><td>Unlimited</td></tr>
+<tr><td>Clip length</td><td>30 seconds</td><td>3 minutes</td><td>10 minutes</td></tr>
+<tr><td>Quality</td><td>720p</td><td>1080p</td><td>1080p</td></tr>
+<tr><td>Watermark</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td>7 viral clips per video</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>AI titles and hooks</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+<tr><td>Saved clips (4 days)</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+</tbody></table></div>
+<style>.cmp-wrap{overflow-x:auto;margin-top:36px}.cmp{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--card);border:1px solid var(--line);border-radius:12px}.cmp th,.cmp td{padding:10px 12px;border-top:1px solid var(--line);text-align:center;white-space:nowrap}.cmp th:first-child,.cmp td:first-child{text-align:left}.cmp thead th{color:var(--accent);border-top:0}</style>
 <div id="msg" role="status"></div>
 </main>
 <script>

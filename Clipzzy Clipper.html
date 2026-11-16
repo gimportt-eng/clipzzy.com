@@ -31,6 +31,21 @@ input[type=text],input[type=url]{background:var(--bg);color:var(--text);border:1
 .ai{width:100%;font-size:.9rem;white-space:pre-wrap;color:var(--muted)}
 #drop{border:2px dashed var(--line);border-radius:12px;padding:32px;text-align:center}
 </style>
+<meta name="theme-color" content="#070b09">
+<style id="neon">
+:root:root:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;--ok:#39ff88;--warn:#ffd24a;--bad:#ff5c7a;--badge:#12361f;--badge-text:#9dffc5;color-scheme:dark}
+body{background:radial-gradient(900px 450px at 85% -10%,rgba(57,255,136,.13),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(0,200,255,.08),transparent 60%),#070b09!important;background-attachment:fixed}
+.card,.stat,details,.wcard{box-shadow:0 8px 30px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s}
+.card:hover,.stat:hover{border-color:rgba(57,255,136,.45)}
+button:not(.alt):not(.yes):not(.no),.btn:not(.alt){background:var(--accent);color:var(--at);font-weight:800;box-shadow:0 0 18px rgba(57,255,136,.35)}
+button:not(.alt):not(.yes):not(.no):hover:not(:disabled),.btn:not(.alt):hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(57,255,136,.55)}
+.alt{border-color:rgba(57,255,136,.35)!important}
+a{color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+input,progress{accent-color:var(--accent)}
+::selection{background:var(--accent);color:var(--at)}
+.meter{display:inline-block;width:70px;height:8px;background:var(--line);border-radius:99px;overflow:hidden;vertical-align:middle;margin-left:6px}.meter i{display:block;height:100%;background:linear-gradient(90deg,#39ff88,#d4ff3a)}
+</style>
 </head>
 <body>
 <main>
@@ -188,7 +203,7 @@ function render(){
   var box=$("clips");box.innerHTML="";
   clips.forEach(function(c,i){
     var d=document.createElement("div");d.className="clip";
-    d.innerHTML='<span>#'+(i+1)+'</span> Start <input type="number" step="0.1" min="0" value="'+c.s.toFixed(1)+'"> End <input type="number" step="0.1" min="0" value="'+c.e.toFixed(1)+'"> <span class="muted">'+fmt(c.e-c.s)+(c.score!==undefined?' · viral score '+c.score:'')+'</span>';
+    d.innerHTML='<span>#'+(i+1)+'</span> Start <input type="number" step="0.1" min="0" value="'+c.s.toFixed(1)+'"> End <input type="number" step="0.1" min="0" value="'+c.e.toFixed(1)+'"> <span class="muted">'+fmt(c.e-c.s)+(c.score!==undefined?' · viral score '+c.score+(c.score>=80?' 🔥':'')+'</span><span class="meter" title="Viral score '+c.score+'"><i style="width:'+c.score+'%"></i></span>':'</span>');
     var ins=d.querySelectorAll("input");
     ins[0].onchange=function(){c.s=+ins[0].value;render()};
     ins[1].onchange=function(){c.e=+ins[1].value;render()};

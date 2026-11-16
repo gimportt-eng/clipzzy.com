@@ -5,38 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Clipzzy Dashboard</title>
 <style>
-:root{--bg:#f7f7fb;--card:#fff;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--accent:#6c4cff;--at:#fff;--ok:#1a9d5c;--warn:#d9822b;
+:root{--bg:#f7f7fb;--card:#fff;--text:#16161d;--muted:#6b6b7b;--line:#e3e3ee;--accent:#6c4cff;--at:#fff;--ok:#1a9d5c;--warn:#d9822b;--bad:#c62f3b;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;--ok:#4cd08a;--warn:#f0a35a;--bad:#ff7b86;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101015;--card:#1a1a23;--text:#f2f2f7;--muted:#a0a0b2;--line:#2c2c3a;--accent:#8b72ff;--at:#0e0e14;--ok:#4cd08a;--warn:#f0a35a;--bad:#ff7b86;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
-main{max-width:960px;margin:0 auto;padding:24px 16px}
-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+main{max-width:980px;margin:0 auto;padding:24px 16px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
 h1{font-size:1.4rem;margin:0}
 .tabs{display:flex;gap:6px}
 button,select,input{font:inherit}
-button{border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at)}
-button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
-button.on{background:var(--accent);color:var(--at)}
+button,.btn{border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--at);text-decoration:none;display:inline-block}
+.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:default}
 select,input{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.stat b{display:block;font-size:1.7rem}
+.stat b{display:block;font-size:1.6rem;line-height:1.2}
 .muted{color:var(--muted);font-size:.9rem}
 .bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0}
 .bar i{display:block;height:100%;background:var(--accent)}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
 .scroll{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
 th,td{text-align:left;padding:8px;border-top:1px solid var(--line);white-space:nowrap}
+.alert{border-radius:12px;padding:10px 14px;margin-bottom:10px;border:1px solid var(--line);background:var(--card)}
+.alert.warn{border-color:var(--warn)}.alert.bad{border-color:var(--bad)}.alert.good{border-color:var(--ok)}
 .note{color:var(--warn);font-size:.9rem;min-height:1.3em}
+.chart{display:flex;gap:4px;align-items:flex-end;height:120px;margin-top:10px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.col .b{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+.col span{font-size:.68rem;color:var(--muted)}
+.tag{font-size:.78rem;font-weight:700}.t-active{color:var(--ok)}.t-soon{color:var(--warn)}.t-locked{color:var(--bad)}
 #welcome{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));background:rgba(10,10,18,.55);opacity:1;transition:opacity .4s}
 #welcome[hidden]{display:none}
 #welcome.out{opacity:0}
 .wcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;max-width:380px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3)}
-.wemoji{font-size:2.4rem}
 .wcard h2{margin:6px 0 2px;font-size:1.5rem}
 .wcard ul{list-style:none;padding:0;margin:14px 0;text-align:left;font-size:.92rem;color:var(--muted)}
 .wcard li{padding:3px 0}
@@ -44,51 +52,118 @@ th,td{text-align:left;padding:8px;border-top:1px solid var(--line);white-space:n
 .wbar i{display:block;height:100%;width:100%;background:var(--accent);transition:width 7s linear}
 #welcome.run .wbar i{width:0}
 </style>
+<meta name="theme-color" content="#070b09">
+<style id="neon">
+:root:root:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;--ok:#39ff88;--warn:#ffd24a;--bad:#ff5c7a;--badge:#12361f;--badge-text:#9dffc5;color-scheme:dark}
+body{background:radial-gradient(900px 450px at 85% -10%,rgba(57,255,136,.13),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(0,200,255,.08),transparent 60%),#070b09!important;background-attachment:fixed}
+.card,.stat,details,.wcard{box-shadow:0 8px 30px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s}
+.card:hover,.stat:hover{border-color:rgba(57,255,136,.45)}
+button:not(.alt):not(.yes):not(.no),.btn:not(.alt){background:var(--accent);color:var(--at);font-weight:800;box-shadow:0 0 18px rgba(57,255,136,.35)}
+button:not(.alt):not(.yes):not(.no):hover:not(:disabled),.btn:not(.alt):hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(57,255,136,.55)}
+.alt{border-color:rgba(57,255,136,.35)!important}
+a{color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+input,progress{accent-color:var(--accent)}
+::selection{background:var(--accent);color:var(--at)}
+.ringwrap{display:flex;gap:16px;align-items:center;margin-top:10px}.ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;position:relative;flex:none}.ring::before{content:'';position:absolute;inset:9px;background:var(--card);border-radius:50%}.ring b{position:relative;font-size:1.15rem}.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:10px}.badge{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;opacity:.4;filter:grayscale(1)}.badge.on{opacity:1;filter:none;border-color:var(--accent);box-shadow:0 0 16px rgba(57,255,136,.25)}.badge span{display:block;font-size:1.6rem}
+</style>
 </head>
 <body>
 <main>
 <header>
   <h1>📊 Clipzzy Dashboard</h1>
   <div class="tabs">
-    <button id="tabMe" class="on">My account</button>
+    <button id="tabMe">My account</button>
     <button id="tabAdmin" class="alt" hidden>Admin</button>
   </div>
 </header>
 <div class="note" id="note"></div>
 
 <section id="me">
-  <div class="stats">
+  <div id="alerts"></div>
+  <div class="grid">
     <div class="stat"><span class="muted">Current plan</span><b id="sPlan"></b></div>
     <div class="stat"><span class="muted">Exports used</span><b id="sUsed"></b></div>
     <div class="stat"><span class="muted">Exports left</span><b id="sLeft"></b></div>
+    <div class="stat"><span class="muted" id="sFreeL">Free period</span><b id="sFree"></b></div>
   </div>
-  <div class="card">
-    <strong>Usage</strong>
-    <div class="bar"><i id="uBar" style="width:0"></i></div>
-    <div class="muted" id="uTxt"></div>
-    <div class="row">
-      <label class="muted">Change plan (demo, no payment)
-        <select id="planSel"><option value="free">Free</option><option value="monthly">Monthly, $9/mo</option><option value="annual">Annual, $20/yr</option></select>
-      </label>
+
+  <div class="two">
+    <div class="card">
+      <strong>Usage</strong>
+      <div class="ringwrap"><div class="ring" id="ring"><b id="ringTxt"></b></div><div class="muted" id="uTxt"></div></div>
+      <div class="row">
+        <label class="muted">Change plan (demo, no payment)
+          <select id="planSel"><option value="free">Free</option><option value="monthly">Monthly, $9/mo</option><option value="annual">Annual, $20/yr</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="card" id="upCard">
+      <strong id="upTitle"></strong>
+      <p class="muted" id="upText"></p>
+      <a class="btn" id="upBtn" target="_blank" rel="noopener">See pricing</a>
     </div>
   </div>
+
+  <div class="card">
+    <strong>Your activity, last 14 days</strong>
+    <div class="chart" id="chart"></div>
+    <div class="grid" style="margin:14px 0 0">
+      <div><span class="muted">Total clips</span><b id="iTot" style="display:block;font-size:1.3rem"></b></div>
+      <div><span class="muted">Time clipped</span><b id="iSecs" style="display:block;font-size:1.3rem"></b></div>
+      <div><span class="muted">Average length</span><b id="iAvg" style="display:block;font-size:1.3rem"></b></div>
+      <div><span class="muted">Day streak</span><b id="iStreak" style="display:block;font-size:1.3rem"></b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>Achievements</strong>
+    <div class="badges" id="badges"></div>
+  </div>
+
+  <div class="card">
+    <strong>Quick links</strong>
+    <div class="row">
+      <a class="btn" id="lClip" target="_blank" rel="noopener">Open the clipper</a>
+      <a class="btn alt" id="lHelp" target="_blank" rel="noopener">Help center</a>
+      <a class="btn alt" href="https://instagram.com/21anu_21" target="_blank" rel="noopener">Instagram @21anu_21</a>
+      <a class="btn alt" href="https://t.me/clipzzy_bot" target="_blank" rel="noopener">Telegram @clipzzy_bot</a>
+    </div>
+  </div>
+
+  <div class="card" id="promoCard">
+    <strong>🎟️ Promo code</strong>
+    <div class="row">
+      <input id="promoIn" placeholder="Enter promo code" autocomplete="off" autocapitalize="none" style="flex:1;min-width:160px">
+      <button id="promoApply">Apply</button>
+    </div>
+    <div class="muted" id="promoMsg" style="margin-top:8px"></div>
+  </div>
+
   <div class="card">
     <strong>Clip history</strong>
+    <p class="muted">Clips are kept for 4 days, then locked until unlocked for $4.</p>
     <div class="row">
-      <input id="cTitle" placeholder="Clip title" style="flex:1;min-width:160px">
+      <input id="cTitle" placeholder="Clip title" style="flex:1;min-width:150px">
       <input id="cLen" type="number" min="1" value="20" style="width:90px" aria-label="Length in seconds">
       <button id="cAdd">Log a test clip</button>
+    </div>
+    <div class="row">
+      <input id="q" placeholder="Search clips" style="flex:1;min-width:150px">
+      <select id="filt"><option value="all">All</option><option value="active">Active</option><option value="locked">Locked</option></select>
       <button class="alt" id="cReset">Reset my data</button>
     </div>
-    <div class="scroll"><table><thead><tr><th>Title</th><th>Length</th><th>When</th></tr></thead><tbody id="cBody"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th>Title</th><th>Length</th><th>Saved</th><th>Status</th><th></th></tr></thead><tbody id="cBody"></tbody></table></div>
   </div>
 </section>
 
 <section id="admin" hidden>
-  <div class="stats">
+  <div class="grid">
     <div class="stat"><span class="muted">Accounts</span><b id="aTot">0</b></div>
     <div class="stat"><span class="muted">Paying accounts</span><b id="aPaid">0</b></div>
+    <div class="stat"><span class="muted">Paying share</span><b id="aConv">0%</b></div>
     <div class="stat"><span class="muted">Est. MRR</span><b id="aMrr">$0</b></div>
+    <div class="stat"><span class="muted">Active, last 7 days</span><b id="aAct">0</b></div>
     <div class="stat"><span class="muted">Exports this month</span><b id="aExp">0</b></div>
   </div>
   <div class="card">
@@ -98,96 +173,234 @@ th,td{text-align:left;padding:8px;border-top:1px solid var(--line);white-space:n
   </div>
   <div class="card">
     <strong>Accounts</strong>
-    <div class="scroll"><table><thead><tr><th>Account</th><th>Plan</th><th>Exports</th><th>Last active</th></tr></thead><tbody id="aBody"></tbody></table></div>
+    <div class="row">
+      <input id="aq" placeholder="Search account ID" style="flex:1;min-width:150px">
+      <select id="ap"><option value="all">All plans</option><option value="free">Free</option><option value="monthly">Monthly</option><option value="annual">Annual</option></select>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Account</th><th>Plan</th><th>Exports</th><th>Free days left</th><th>Last active</th></tr></thead><tbody id="aBody"></tbody></table></div>
   </div>
 </section>
 </main>
+
 <div id="welcome" role="dialog" aria-label="Welcome" hidden>
   <div class="wcard">
-    <div class="wemoji">👋</div>
-    <h2 id="wHi">Welcome!</h2>
+    <div style="font-size:2.4rem">👋</div>
+    <h2>Welcome to Clipzzy!</h2>
     <div><b id="wPlan"></b></div>
     <div class="muted" id="wInfo"></div>
     <ul>
       <li>🎬 Clips are saved for 4 days, then locked until you unlock them for $4.</li>
-      <li>⚡ Use "Log a test clip" to see how your history looks.</li>
-      <li>💬 Need help? Message @21anu_21 on Instagram.</li>
+      <li>⚡ Use “Log a test clip” to see how your history looks.</li>
+      <li>🎟️ Have a promo code? Enter it in the Promo code box on this page.</li>
+      <li>💬 Need help? Instagram @21anu_21 or Telegram @clipzzy_bot.</li>
     </ul>
     <div class="wbar"><i></i></div>
     <button id="wSkip">Get started</button>
   </div>
 </div>
+
 <script>
 var PL={free:{n:"Free",max:7,price:0},monthly:{n:"Monthly",max:100,price:9},annual:{n:"Annual",max:Infinity,price:20/12}};
+var PERK={free:"7 exports per day, 30 s clips, 720p, watermark",monthly:"100 exports per month, 3 min clips, 1080p, no watermark",annual:"Unlimited exports, 10 min clips, 1080p, no watermark"};
+var NEXT={free:"monthly",monthly:"annual"},PRICE={monthly:"$9 per month",annual:"$20 per year"};
+var URLS={clip:"https://claude.ai/artifact/15CCLGWXUwLqVJoKFa5m4H",pricing:"https://claude.ai/artifact/18W9VYJxCCgRCt8wGAHzNJ",help:"https://claude.ai/artifact/RmTc5WjfcuZ1DfTwuE3jVe",tele:"https://claude.ai/artifact/759s9CSxLwU9NbimWj2kYu"};
+var DAY=86400000;
 var $=function(id){return document.getElementById(id)};
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
 function mk(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)}
-var S={plan:"free",exports:0,month:mk(),clips:[]},db=null,uid=null,isAdmin=false,A=[];
+function dayKey(t){var d=new Date(t);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+var S={plan:"free",exports:0,month:mk(),day:"",freeStart:0,clips:[],log:[],total:0,secs:0},db=null,uid=null,isAdmin=false,A=[];
 
-function freeLeft(){return Math.ceil(30-(Date.now()-(S.freeStart||Date.now()))/86400000)}
 function note(t){$("note").textContent=t||""}
-function td(tr,t){var c=document.createElement("td");c.textContent=t;tr.appendChild(c)}
+function freeLeft(){return Math.ceil(30-(Date.now()-(S.freeStart||Date.now()))/DAY)}
 function ago(ts){var m=Math.round((Date.now()-ts)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"}
+function left(ms){var s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return d>0?d+"d "+h+"h":h>0?h+"h "+m+"m":m+" min"}
+function mmss(s){return Math.floor(s/60)+":"+("0"+Math.round(s%60)).slice(-2)}
+function cst(c){var l=c.at+4*DAY-Date.now();return l<=0?{k:"locked",t:"Locked"}:{k:l<DAY?"soon":"active",t:left(l)+" left"}}
 
 async function save(){
   if(!db||!uid)return;
   try{
     await db.doc("data/users/"+uid+"/profile").set(S);
-    await db.doc("accounts/"+uid).set({plan:S.plan,exports:S.exports,month:S.month,last:Date.now()});
+    await db.doc("accounts/"+uid).set({plan:S.plan,exports:S.exports,month:S.month,fs:S.freeStart,last:Date.now()});
   }catch(e){note("Could not save: "+((e&&(e.message||e.code))||"error"))}
 }
 
-function render(){
-  var p=PL[S.plan],left=p.max===Infinity?"Unlimited":Math.max(0,p.max-S.exports);
-  $("sPlan").textContent=p.n;$("sUsed").textContent=S.exports;$("sLeft").textContent=left;
-  var pct=p.max===Infinity?Math.min(100,S.exports*2):Math.min(100,S.exports/p.max*100);
-  $("uBar").style.width=pct+"%";
-  $("uTxt").textContent=p.max===Infinity?"No export limit on this plan.":S.exports+" of "+p.max+" exports used"+(S.plan==="free"?" today. "+(freeLeft()>0?freeLeft()+" days left in your free period.":"Your 30-day free period has ended."):".");
-  $("planSel").value=S.plan;
+function alerts(){
+  var box=$("alerts");box.innerHTML="";
+  function add(k,t){box.appendChild(el("div","alert "+k,t))}
+  var p=PL[S.plan];
+  if(S.plan==="free"){
+    var fl=freeLeft();
+    if(fl<=0)add("bad","Your 30-day free period has ended. Choose a plan to keep exporting.");
+    else if(fl<=5)add("warn","Only "+fl+" day"+(fl===1?"":"s")+" left in your free period.");
+  }
+  if(p.max!==Infinity&&S.exports>=p.max)add("bad","You have used all "+p.max+" exports for this "+(S.plan==="free"?"day":"month")+".");
+  else if(p.max!==Infinity&&S.exports>=p.max*0.8)add("warn","You have used "+S.exports+" of "+p.max+" exports. Almost at your limit.");
+  var soon=S.clips.filter(function(c){return cst(c).k==="soon"}).length;
+  if(soon)add("warn",soon+" clip"+(soon===1?"":"s")+" will lock within 24 hours. Download "+(soon===1?"it":"them")+" soon.");
+  if(!box.firstChild&&S.total>0)add("good","All good. You have "+S.total+" clip"+(S.total===1?"":"s")+" so far.");
+}
+
+function chart(){
+  var box=$("chart");box.innerHTML="";
+  var counts={},max=1,i;
+  S.log.forEach(function(t){var k=dayKey(t);counts[k]=(counts[k]||0)+1});
+  var days=[];
+  for(i=13;i>=0;i--){var d=new Date(Date.now()-i*DAY),n=counts[dayKey(d.getTime())]||0;days.push({d:d,n:n});if(n>max)max=n}
+  days.forEach(function(x){
+    var col=el("div","col"),b=el("div","b");
+    b.style.height=Math.max(2,Math.round(x.n/max*80))+"px";
+    col.title=x.d.toLocaleDateString()+": "+x.n+" export"+(x.n===1?"":"s");
+    col.append(el("span","",x.n||""),b,el("span","",x.d.getDate()));box.appendChild(col);
+  });
+  var streak=0,k=0,has={};S.log.forEach(function(t){has[dayKey(t)]=1});
+  while(has[dayKey(Date.now()-k*DAY)]){streak++;k++}
+  $("iTot").textContent=S.total;$("iSecs").textContent=mmss(S.secs);
+  $("iAvg").textContent=S.total?mmss(S.secs/S.total):"-";$("iStreak").textContent=streak+" day"+(streak===1?"":"s");
+}
+
+function history(){
   var b=$("cBody");b.innerHTML="";
-  if(!S.clips.length){var r=document.createElement("tr");td(r,"No clips yet.");b.appendChild(r)}
-  S.clips.slice().reverse().forEach(function(c){
-    var r=document.createElement("tr");td(r,c.title);td(r,c.len+" s");td(r,ago(c.at));b.appendChild(r);
+  var q=$("q").value.trim().toLowerCase(),f=$("filt").value;
+  var rows=S.clips.slice().reverse().filter(function(c){
+    return (!q||c.title.toLowerCase().indexOf(q)>-1)&&(f==="all"||cst(c).k===f||(f==="active"&&cst(c).k==="soon"));
+  });
+  if(!rows.length){var r=el("tr");var t=el("td","muted",S.clips.length?"No clips match.":"No clips yet.");t.colSpan=5;r.appendChild(t);b.appendChild(r)}
+  rows.forEach(function(c){
+    var r=el("tr"),s=cst(c);
+    r.append(el("td","",c.title),el("td","",c.len+" s"),el("td","",ago(c.at)));
+    var st=el("td"),tg=el("span","tag t-"+s.k,s.t);st.appendChild(tg);r.appendChild(st);
+    var x=el("td"),del=el("button","alt","Delete");
+    del.onclick=function(){S.clips=S.clips.filter(function(y){return y.id!==c.id});render();save()};
+    x.appendChild(del);r.appendChild(x);b.appendChild(r);
   });
 }
 
+function badges(){
+  var box=$("badges");box.innerHTML="";
+  var has={},today=0,k=0,streak=0,td=dayKey(Date.now());
+  S.log.forEach(function(t){var d=dayKey(t);has[d]=1;if(d===td)today++});
+  while(has[dayKey(Date.now()-k*DAY)]){streak++;k++}
+  [["\ud83c\udfac","First clip",S.total>=1],["\u2b50","5 clips",S.total>=5],["\ud83c\udfc6","25 clips",S.total>=25],["\ud83d\udd25","3-day streak",streak>=3],["\u26a1","7 in one day",today>=7],["\ud83d\udc8e","Paid plan",S.plan!=="free"]].forEach(function(b){
+    var d=el("div","badge"+(b[2]?" on":""));d.title=b[2]?"Unlocked":"Locked";d.append(el("span","",b[0]),el("div","muted",b[1]));box.appendChild(d);
+  });
+}
+
+function render(){
+  var p=PL[S.plan],left_=p.max===Infinity?"Unlimited":Math.max(0,p.max-S.exports);
+  $("sPlan").textContent=p.n;$("sUsed").textContent=S.exports;$("sLeft").textContent=left_;
+  if(S.plan==="free"){$("sFreeL").textContent="Free days left";$("sFree").textContent=Math.max(0,freeLeft())}
+  else{$("sFreeL").textContent="Billing";$("sFree").textContent=S.plan==="monthly"?"$9/mo":"$20/yr"}
+  var pct=p.max===Infinity?Math.min(100,S.exports*2):Math.min(100,S.exports/p.max*100);
+  $("ring").style.background="conic-gradient(var(--accent) "+(pct*3.6)+"deg,var(--line) 0)";$("ringTxt").textContent=p.max===Infinity?"\u221e":Math.round(pct)+"%";
+  $("uTxt").textContent=p.max===Infinity?"No export limit on this plan.":S.exports+" of "+p.max+" exports used"+(S.plan==="free"?" today.":" this month.");
+  $("planSel").value=S.plan;
+  var nx=NEXT[S.plan];
+  if(nx){
+    $("upTitle").textContent="Upgrade to "+PL[nx].n+" ("+PRICE[nx]+")";
+    $("upText").textContent="You would get: "+PERK[nx]+".";
+    $("upBtn").hidden=false;
+  }else{
+    $("upTitle").textContent="You are on our best plan";
+    $("upText").textContent="You have: "+PERK.annual+". Thank you!";
+    $("upBtn").hidden=true;
+  }
+  alerts();chart();history();badges();
+}
+
 function renderAdmin(){
-  var cnt={free:0,monthly:0,annual:0},ex=0,mrr=0;
-  A.forEach(function(a){if(cnt[a.plan]!==undefined)cnt[a.plan]++;if(a.month===mk())ex+=a.exports||0;mrr+=(PL[a.plan]||PL.free).price});
-  $("aTot").textContent=A.length;$("aPaid").textContent=cnt.monthly+cnt.annual;
-  $("aMrr").textContent="$"+mrr.toFixed(2);$("aExp").textContent=ex;
+  var cnt={free:0,monthly:0,annual:0},ex=0,mrr=0,act=0;
+  A.forEach(function(a){
+    if(cnt[a.plan]!==undefined)cnt[a.plan]++;
+    if(a.month===mk())ex+=a.exports||0;
+    mrr+=(PL[a.plan]||PL.free).price;
+    if(a.last&&Date.now()-a.last<7*DAY)act++;
+  });
+  var paid=cnt.monthly+cnt.annual;
+  $("aTot").textContent=A.length;$("aPaid").textContent=paid;
+  $("aConv").textContent=(A.length?Math.round(paid/A.length*100):0)+"%";
+  $("aMrr").textContent="$"+mrr.toFixed(2);$("aAct").textContent=act;$("aExp").textContent=ex;
   var mix=$("mix");mix.innerHTML="";
   ["free","monthly","annual"].forEach(function(k){
-    var w=document.createElement("div"),t=document.createElement("div"),bar=document.createElement("div"),i=document.createElement("i");
-    t.className="muted";t.textContent=PL[k].n+": "+cnt[k];bar.className="bar";
+    var w=el("div"),t=el("div","muted",PL[k].n+": "+cnt[k]),bar=el("div","bar"),i=el("i");
     i.style.width=(A.length?cnt[k]/A.length*100:0)+"%";bar.appendChild(i);w.append(t,bar);mix.appendChild(w);
   });
-  var b=$("aBody");b.innerHTML="";
-  A.slice().sort(function(x,y){return (y.last||0)-(x.last||0)}).forEach(function(a){
-    var r=document.createElement("tr");td(r,"#"+a.id.slice(0,6));td(r,(PL[a.plan]||PL.free).n);td(r,a.exports||0);td(r,a.last?ago(a.last):"-");b.appendChild(r);
+  var q=$("aq").value.trim().toLowerCase(),pf=$("ap").value,b=$("aBody");b.innerHTML="";
+  var rows=A.filter(function(a){return (!q||a.id.toLowerCase().indexOf(q)>-1)&&(pf==="all"||a.plan===pf)})
+    .sort(function(x,y){return (y.last||0)-(x.last||0)});
+  rows.forEach(function(a){
+    var r=el("tr"),fl=a.plan==="free"&&a.fs?Math.max(0,Math.ceil(30-(Date.now()-a.fs)/DAY)):"-";
+    r.append(el("td","","#"+a.id.slice(0,6)),el("td","",(PL[a.plan]||PL.free).n),el("td","",a.exports||0),el("td","",fl),el("td","",a.last?ago(a.last):"-"));
+    b.appendChild(r);
   });
-  if(!A.length){var r=document.createElement("tr");td(r,"No accounts yet.");b.appendChild(r)}
+  if(!rows.length){var r=el("tr"),t=el("td","muted","No accounts found.");t.colSpan=5;r.appendChild(t);b.appendChild(r)}
 }
 
 function tab(admin){
   $("me").hidden=admin;$("admin").hidden=!admin;
-  $("tabMe").className=admin?"alt":"on";$("tabAdmin").className=admin?"on":"alt";
+  $("tabMe").className=admin?"alt":"";$("tabAdmin").className=admin?"":"alt";
 }
 $("tabMe").onclick=function(){tab(false)};
 $("tabAdmin").onclick=function(){tab(true)};
-
+$("q").oninput=history;$("filt").onchange=history;
+$("aq").oninput=renderAdmin;$("ap").onchange=renderAdmin;
 $("planSel").onchange=function(){S.plan=$("planSel").value;render();save()};
+$("cReset").onclick=function(){S.exports=0;S.clips=[];S.log=[];S.total=0;S.secs=0;render();save()};
 $("cAdd").onclick=function(){
   var p=PL[S.plan];
   if(S.plan==="free"&&freeLeft()<=0){note("Your 30-day free period has ended. Change plan to log more exports.");return}
   if(S.exports>=p.max){note("Plan limit reached. Change plan to log more exports.");return}
   note(db?"":"Not signed in, so changes are not saved.");
-  S.exports++;
-  S.clips.push({title:$("cTitle").value.trim()||"Untitled clip",len:Math.max(1,+$("cLen").value||20),at:Date.now()});
-  S.clips=S.clips.slice(-20);$("cTitle").value="";render();save();
+  var len=Math.max(1,+$("cLen").value||20),now=Date.now();
+  S.exports++;S.total++;S.secs+=len;
+  S.log=S.log.concat(now).slice(-300);
+  S.clips=S.clips.concat({id:now+"-"+Math.random().toString(36).slice(2,6),title:$("cTitle").value.trim()||"Untitled clip",len:len,at:now}).slice(-50);
+  $("cTitle").value="";render();save();
 };
-$("cReset").onclick=function(){S.exports=0;S.clips=[];render();save()};
+
+var PROMO_HASH="86ffd3e002b8c075b4f9c1e78a73fac3afbf01720bd3f6530d1ea187193e470d";
+async function sha(t){
+  var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(b)).map(function(x){return ("0"+x.toString(16)).slice(-2)}).join("");
+}
+function showPromo(){
+  var m=$("promoMsg");m.innerHTML="";
+  if(S.promo){
+    m.append("Promo code accepted. ");
+    var a=el("a","btn","Continue");a.href=URLS.tele;a.target="_blank";a.rel="noopener";a.style.marginTop="8px";
+    m.appendChild(a);
+    $("promoIn").hidden=true;$("promoApply").hidden=true;
+  }
+}
+async function applyPromo(){
+  var code=$("promoIn").value.trim().toLowerCase(),m=$("promoMsg");
+  if(!code){m.textContent="Enter a promo code.";return}
+  var ok=false;
+  try{ok=(await sha(code))===PROMO_HASH}catch(e){m.textContent="Could not check the code here.";return}
+  if(!ok){m.textContent="That promo code is not valid.";return}
+  S.promo=true;$("promoIn").value="";showPromo();save();
+}
+
+function showWelcome(){
+  var w=$("welcome"),p=PL[S.plan];
+  $("wPlan").textContent=p.n+" plan";
+  var bits=[p.max===Infinity?"Unlimited exports":Math.max(0,p.max-S.exports)+" exports left "+(S.plan==="free"?"today":"this month")];
+  if(S.plan==="free")bits.push(Math.max(0,freeLeft())+" free days left");
+  $("wInfo").textContent=bits.join(" · ");
+  w.hidden=false;
+  requestAnimationFrame(function(){requestAnimationFrame(function(){w.classList.add("run")})});
+  var closed=false;
+  function close(){if(closed)return;closed=true;w.classList.add("out");setTimeout(function(){w.hidden=true},400)}
+  $("wSkip").onclick=close;
+  w.onclick=function(e){if(e.target===w)close()};
+  setTimeout(close,7000);
+}
 
 (async function init(){
+  $("upBtn").href=URLS.pricing;$("lClip").href=URLS.clip;$("lHelp").href=URLS.help;
+  $("promoApply").onclick=applyPromo;
+  $("promoIn").addEventListener("keydown",function(e){if(e.key==="Enter")applyPromo()});
   try{
     if(window.claude){
       var u=await claude.use("user");db=await claude.use("db");
@@ -204,26 +417,10 @@ $("cReset").onclick=function(){S.exports=0;S.clips=[];render();save()};
   var td0=new Date().toDateString();
   if(S.month!==mk()||(S.plan==="free"&&S.day!==td0)){S.month=mk();S.exports=0}
   S.day=td0;if(!S.freeStart)S.freeStart=Date.now();
-  $("tabAdmin").hidden=!isAdmin;
+  $("tabAdmin").hidden=!isAdmin;tab(false);
   if(!db)note("Not signed in, so changes are not saved.");
-  render();renderAdmin();showWelcome();
+  render();renderAdmin();showWelcome();showPromo();
 })();
-
-function showWelcome(){
-  var w=$("welcome"),p=PL[S.plan],h=new Date().getHours();
-  $("wHi").textContent=(h<12?"Good morning":h<18?"Good afternoon":"Good evening")+"! Welcome to Clipzzy";
-  $("wPlan").textContent=p.n+" plan";
-  var bits=[p.max===Infinity?"Unlimited exports":Math.max(0,p.max-S.exports)+" exports left "+(S.plan==="free"?"today":"this month")];
-  if(S.plan==="free")bits.push(Math.max(0,freeLeft())+" free days left");
-  $("wInfo").textContent=bits.join(" · ");
-  w.hidden=false;
-  requestAnimationFrame(function(){requestAnimationFrame(function(){w.classList.add("run")})});
-  var closed=false;
-  function close(){if(closed)return;closed=true;w.classList.add("out");setTimeout(function(){w.hidden=true},400)}
-  $("wSkip").onclick=close;
-  w.onclick=function(e){if(e.target===w)close()};
-  setTimeout(close,7000);
-}
 </script>
 </body>
 </html>

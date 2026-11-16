@@ -22,6 +22,20 @@ details{background:var(--card);border:1px solid var(--line);border-radius:12px;p
 summary{cursor:pointer;font-weight:600}
 details p{margin:10px 0 0;color:var(--muted)}
 </style>
+<meta name="theme-color" content="#070b09">
+<style id="neon">
+:root:root:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;--ok:#39ff88;--warn:#ffd24a;--bad:#ff5c7a;--badge:#12361f;--badge-text:#9dffc5;color-scheme:dark}
+body{background:radial-gradient(900px 450px at 85% -10%,rgba(57,255,136,.13),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(0,200,255,.08),transparent 60%),#070b09!important;background-attachment:fixed}
+.card,.stat,details,.wcard{box-shadow:0 8px 30px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s}
+.card:hover,.stat:hover{border-color:rgba(57,255,136,.45)}
+button:not(.alt):not(.yes):not(.no),.btn:not(.alt){background:var(--accent);color:var(--at);font-weight:800;box-shadow:0 0 18px rgba(57,255,136,.35)}
+button:not(.alt):not(.yes):not(.no):hover:not(:disabled),.btn:not(.alt):hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(57,255,136,.55)}
+.alt{border-color:rgba(57,255,136,.35)!important}
+a{color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+input,progress{accent-color:var(--accent)}
+::selection{background:var(--accent);color:var(--at)}
+</style>
 </head>
 <body>
 <main>
@@ -44,28 +58,36 @@ details p{margin:10px 0 0;color:var(--muted)}
 <p class="muted" style="margin-top:12px">When you write, include the email you signed up with so we can find your account.</p>
 
 <h2>Common questions</h2>
+<input id="faqQ" type="search" placeholder="Search questions" style="width:100%;margin-bottom:12px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit">
 <details><summary>How does the free plan work?</summary>
 <p>New accounts get 30 days free: up to 7 exports per day, clips up to 30 seconds, 720p quality, and an "ananya.clip" watermark. After 30 days you need a paid plan to keep exporting.</p></details>
 <details><summary>What do the paid plans include?</summary>
-<p>Monthly ($9 per month): 100 exports per month, clips up to 3 minutes, 1080p, no watermark. Annual ($20 per year): unlimited exports, clips up to 10 minutes, 1080p, no watermark.</p></details>
+<p>Monthly ($9 per month): 100 exports per month, clips up to 3 minutes, 1080p, no watermark. Annual ($20 per year): unlimited exports, clips up to 10 minutes, 1080p, no watermark. Weekly (available with a promo code): 25 exports per week, clips up to 3 minutes, 1080p, no watermark.</p></details>
+<details><summary>How many clips do I get from one video?</summary>
+<p>Press "Make 7 viral clips" in the clipper. It finds the 7 loudest, most energetic moments in your video and gives each a score. The score is an estimate based on sound, not a guarantee of views. Each clip you export counts as one export on your plan.</p></details>
 <details><summary>How long are my clips kept?</summary>
 <p>Clips you export while logged in are saved in My clips for 4 days. After that they are locked. You can unlock a locked clip for $4 with PayPal. Locked clips that are not unlocked may be deleted after another 30 days, so download the ones you want to keep.</p></details>
 <details><summary>I paid to unlock a clip but it is still locked</summary>
 <p>Refresh the My clips page first. If it is still locked, message us with your account email and the PayPal receipt, and we will fix it.</p></details>
+<details><summary>I have a promo code</summary>
+<p>Open the Promo code page from the link on the pricing page or from a locked clip, then type your code. Once it is accepted, you will see how to pay and where to upload your payment screenshot. We check it by hand and then activate your plan or unlock your clip. You can follow the status on the same page.</p></details>
 <details><summary>How do I cancel my subscription?</summary>
-<p>Cancel it from your PayPal account under automatic payments. Your plan returns to Free within a few hours after you cancel.</p></details>
+<p>Cancel it from your PayPal account under automatic payments. You keep your plan until the end of the period you already paid for, then it returns to Free.</p></details>
 <details><summary>Can I clip any YouTube or Twitch video?</summary>
 <p>Only clip videos you own or have permission to use. You confirm this each time you cut from a link. See the <a href="/terms">terms</a>.</p></details>
 <details><summary>I forgot my password</summary>
-<p>Automatic password reset is not available yet. Message us from the email on your account and we will help you.</p></details>
+<p>On the log-in page, enter your email and press "Forgot your password?". We email you a link that works for 1 hour. If no email arrives, check your spam folder, then message us.</p></details>
+<details><summary>I did not get the verification email</summary>
+<p>Check your spam folder. Then log in, open your account page and press "Resend verification email". You can resend up to 3 times per hour. Until you verify, you can log in but you cannot export or save clips.</p></details>
 <details><summary>My export failed or looks wrong</summary>
 <p>Try Chrome or Edge, and check that your start and end times are inside the video. If it keeps failing, message us with the video type and what happened.</p></details>
 
 <p class="muted" style="margin-top:28px"><a href="/terms">Terms</a> · <a href="/pricing">Pricing</a> · <a href="/register">Account</a></p>
 </main>
 <script>
+document.getElementById("faqQ").oninput=function(){var q=this.value.toLowerCase();document.querySelectorAll("details").forEach(function(d){d.style.display=d.textContent.toLowerCase().indexOf(q)>-1?"":"none"})};
 // Set your Telegram username here (without the @) to show the Telegram button.
-var TELEGRAM_USER="";
+var TELEGRAM_USER="clipzzy_bot";
 if(TELEGRAM_USER){
   var a=document.getElementById("tgLink");
   a.href="https://t.me/"+TELEGRAM_USER;a.textContent="@"+TELEGRAM_USER;

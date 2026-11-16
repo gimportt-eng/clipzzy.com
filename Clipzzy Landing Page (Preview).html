@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b09">
+<title>Clipzzy: turn one long video into 7 viral shorts</title>
+<style>
+:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;
+background:radial-gradient(900px 500px at 80% -10%,rgba(57,255,136,.16),transparent 60%),radial-gradient(700px 400px at -10% 40%,rgba(0,200,255,.08),transparent 60%),var(--bg)}
+nav,main,footer{max-width:1000px;margin:0 auto;padding:16px}
+nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+nav a{color:var(--text);text-decoration:none;margin-left:16px}
+.logo{font-weight:800;font-size:1.3rem;margin:0}.logo b{color:var(--accent)}
+.hero{text-align:center;padding:64px 0 32px}
+.pill{display:inline-block;border:1px solid rgba(57,255,136,.5);color:var(--accent);padding:4px 14px;border-radius:99px;font-size:.85rem;font-weight:700}
+h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1.08;margin:18px 0 14px;letter-spacing:-.03em}
+.glow{color:var(--accent);text-shadow:0 0 28px rgba(57,255,136,.55);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{50%{text-shadow:0 0 46px rgba(57,255,136,.9)}}
+@media (prefers-reduced-motion:reduce){.glow{animation:none}}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto 28px;font-size:1.1rem}
+.btn{display:inline-block;background:var(--accent);color:var(--at);padding:13px 26px;border-radius:12px;font-weight:800;text-decoration:none;margin:4px;box-shadow:0 0 22px rgba(57,255,136,.4)}
+.btn.alt{background:transparent;color:var(--text);border:1px solid rgba(57,255,136,.4);box-shadow:none}
+.stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-top:40px}
+.stats b{display:block;font-size:2rem;color:var(--accent)}.stats span{color:var(--muted);font-size:.9rem}
+h2{font-size:1.6rem;margin:56px 0 16px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:rgba(57,255,136,.5);transform:translateY(-3px)}
+.card h3{margin:6px 0}.card p{margin:0;color:var(--muted);font-size:.95rem}
+.step{font-size:2rem;font-weight:800;color:var(--accent)}
+.plans .card b{font-size:1.8rem}
+.cta{text-align:center;margin:56px 0 24px;padding:36px 16px;border:1px solid rgba(57,255,136,.35);border-radius:20px;background:linear-gradient(135deg,rgba(57,255,136,.1),rgba(0,200,255,.05))}
+footer{text-align:center;color:var(--muted);font-size:.9rem;padding:32px 16px}
+footer a{color:var(--muted);margin:0 8px}
+</style>
+</head>
+<body>
+<nav><p class="logo">🎬 Clip<b>zzy</b></p><div><a href="https://claude.ai/artifact/15CCLGWXUwLqVJoKFa5m4H">Clipper</a><a href="https://claude.ai/artifact/18W9VYJxCCgRCt8wGAHzNJ">Pricing</a><a href="https://claude.ai/artifact/LNErP6Ya8bNgEHEmjXHqc8">My clips</a><a href="https://claude.ai/artifact/RmTc5WjfcuZ1DfTwuE3jVe">Help</a><a href="https://claude.ai/artifact/4WumAq4U63LPANkGQPBEVB">Log in</a></div></nav>
+<main>
+  <section class="hero">
+    <span class="pill">Free for 30 days</span>
+    <h1>One long video.<br><span class="glow">7 viral shorts.</span></h1>
+    <p>Drop in a video and Clipzzy finds the 7 most energetic moments, scores them, and lets you export them ready for social media.</p>
+    <a class="btn" href="https://claude.ai/artifact/15CCLGWXUwLqVJoKFa5m4H">Start clipping free</a><a class="btn alt" href="https://claude.ai/artifact/18W9VYJxCCgRCt8wGAHzNJ">See pricing</a>
+    <div class="stats">
+      <div><b>7</b><span>clips from every video</span></div>
+      <div><b>30</b><span>days free to try</span></div>
+      <div><b>1080p</b><span>on paid plans</span></div>
+    </div>
+  </section>
+
+  <h2>How it works</h2>
+  <section class="grid">
+    <div class="card"><div class="step">1</div><h3>Add your video</h3><p>Upload a file or drag it in. It is processed in your browser.</p></div>
+    <div class="card"><div class="step">2</div><h3>Make 7 viral clips</h3><p>One click ranks the 7 loudest, most energetic moments and gives each a score.</p></div>
+    <div class="card"><div class="step">3</div><h3>Export and post</h3><p>Trim if you like, export all 7, and share. Add an AI title and hashtags in one tap.</p></div>
+  </section>
+
+  <h2>Made for creators</h2>
+  <section class="grid">
+    <div class="card"><h3>🔥 Viral score</h3><p>Every clip gets a 0 to 100 score based on sound energy, so the best moments rise to the top.</p></div>
+    <div class="card"><h3>🤖 AI titles and hooks</h3><p>Claude looks at your clip and writes a title, a hook and hashtags.</p></div>
+    <div class="card"><h3>🔗 Clip from a link</h3><p>Cut a segment from a YouTube or Twitch video you own or have permission to use.</p></div>
+    <div class="card"><h3>🗂️ My clips</h3><p>Your clips are saved for 4 days so you can come back and download them.</p></div>
+    <div class="card"><h3>🔒 Safe accounts</h3><p>Email verification, password reset and hashed passwords keep your account protected.</p></div>
+    <div class="card"><h3>🎟️ Promo codes</h3><p>Have a promo code? Enter it on the promo code page to unlock more ways to pay.</p></div>
+  </section>
+
+  <h2>Simple plans</h2>
+  <section class="grid plans">
+    <div class="card"><h3>Free</h3><b>$0</b><p>30 days, 7 exports a day, 720p, small watermark.</p></div>
+    <div class="card"><h3>Monthly</h3><b>$9</b><p>100 exports a month, 1080p, no watermark.</p></div>
+    <div class="card" style="border-color:rgba(57,255,136,.6)"><h3>Annual</h3><b>$20</b><p>Unlimited exports for a year, 1080p, no watermark.</p></div>
+  </section>
+
+  <section class="cta">
+    <h2 style="margin:0 0 8px">Ready to make your first 7 clips?</h2>
+    <p style="color:var(--muted);margin:0 0 18px">No card needed to start.</p>
+    <a class="btn" href="https://claude.ai/artifact/4WumAq4U63LPANkGQPBEVB">Create free account</a>
+  </section>
+</main>
+<footer>
+  <a href="https://claude.ai/artifact/RmTc5WjfcuZ1DfTwuE3jVe">Help</a><a href="#">Terms</a><a href="https://claude.ai/artifact/18W9VYJxCCgRCt8wGAHzNJ">Pricing</a>
+  <a href="https://instagram.com/21anu_21" target="_blank" rel="noopener">Instagram</a>
+  <a href="https://t.me/clipzzy_bot" target="_blank" rel="noopener">Telegram</a>
+  <div style="margin-top:10px">© Clipzzy</div>
+</footer>
+</body>
+</html>

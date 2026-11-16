@@ -26,6 +26,20 @@ button:disabled{opacity:.5}
 .pay{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem}
 .s-pending{color:var(--warn)}.s-approved{color:var(--ok)}.s-rejected{color:var(--bad)}
 </style>
+<meta name="theme-color" content="#070b09">
+<style id="neon">
+:root:root:root{--bg:#070b09;--card:#0f1814;--text:#e9fff2;--muted:#8db4a0;--line:#1e3329;--accent:#39ff88;--at:#03140a;--ok:#39ff88;--warn:#ffd24a;--bad:#ff5c7a;--badge:#12361f;--badge-text:#9dffc5;color-scheme:dark}
+body{background:radial-gradient(900px 450px at 85% -10%,rgba(57,255,136,.13),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(0,200,255,.08),transparent 60%),#070b09!important;background-attachment:fixed}
+.card,.stat,details,.wcard{box-shadow:0 8px 30px rgba(0,0,0,.35);transition:border-color .2s,box-shadow .2s}
+.card:hover,.stat:hover{border-color:rgba(57,255,136,.45)}
+button:not(.alt):not(.yes):not(.no),.btn:not(.alt){background:var(--accent);color:var(--at);font-weight:800;box-shadow:0 0 18px rgba(57,255,136,.35)}
+button:not(.alt):not(.yes):not(.no):hover:not(:disabled),.btn:not(.alt):hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(57,255,136,.55)}
+.alt{border-color:rgba(57,255,136,.35)!important}
+a{color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+input,progress{accent-color:var(--accent)}
+::selection{background:var(--accent);color:var(--at)}
+</style>
 </head>
 <body>
 <div style="background:#ffe9a8;color:#5a4300;text-align:center;padding:8px;font-size:.9rem">Preview mode: type your promo code. Nothing is sent or saved.</div>
